@@ -1,0 +1,115 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var Magento\Wishlist\Block\Catalog\Product\ProductList\Item\AddTo\Wishlist $block */
+?>
+<?php
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $customerSession = $objectManager->create('Magento\Customer\Model\Session');
+    $customer_id = $customerSession->getCustomerId();
+
+
+?>
+<?php if ($block->getWishlistHelper()->isAllow()): ?>
+
+<script type="text/javascript">
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$context = $objectManager->get('Magento\Framework\App\Http\Context');
+$isLoggedIn = $context->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
+if($isLoggedIn){
+?>
+require([ 'jquery', 'Magento_Customer/js/customer-data', 'jquery/ui'], function($, customerData){
+    'use strict';
+   $('ol.product-items.widget-product-grid .actions-secondary a.action.towishlist').removeAttr('data-post');
+     
+    var customer_id = '<?php echo $customer_id; ?>';
+    var wishlist_name = 'Default';
+    var product_ids = [];
+    $('ol.product-items.widget-product-grid .price-box.price-final_price').each(function () { 
+	  product_ids.push($(this).attr('data-product-id'));
+	});
+	$('ol.product-items.widget-product-grid .actions-secondary a.action.towishlist').each(function (i){
+		$(this).addClass(product_ids[i]);
+		$("ol.product-items.widget-product-grid .actions-secondary a.action.towishlist."+product_ids[i]).on('click',function(){ 
+        $('ol.product-items.widget-product-grid .actions-secondary a.action.towishlist.'+product_ids[i]).trigger('processStart');
+        
+        $.ajax({
+            url : '<?php echo $block->getUrl('favorite/index/add'); ?>',
+            method : 'POST',
+            data : { 
+                     product_id : product_ids[i],
+                     customer_id : customer_id,
+                     wishlist_name : wishlist_name,
+                     ajaxfavlist : 'magewishlist'
+                    },
+            success : function(data){
+                $('ol.product-items.widget-product-grid .actions-secondary a.action.towishlist.'+product_ids[i]).trigger('processStop');
+                if(data == 'product_exist'){
+                    var message = 'Product is already in the wishlist';
+                     customerData.set('messages', {
+                        messages: [{
+                            type: 'error',
+                            text: message
+                        }]
+                    }).stop();
+                }
+                else{
+                     var message = 'Product added successfully to Default wishlist.';
+                     customerData.set('messages', {
+                        messages: [{
+                            type: 'success',
+                            text: message
+                        }]
+                    }).stop();
+                }
+                
+            }                           
+        });
+        
+    });
+    });
+   
+});
+<?php
+}else{
+?>
+require([ 'jquery', 'jquery/ui'], function($){
+    var product_ids = [];
+    $('ol.product-items.widget-product-grid .price-box.price-final_price').each(function () { 
+	  product_ids.push($(this).attr('data-product-id'));
+	});
+	$('ol.product-items.widget-product-grid .actions-secondary a.action.towishlist').each(function (i){
+		$(this).addClass(product_ids[i]);
+		$(document).on("click","ol.product-items.widget-product-grid .actions-secondary a.action.towishlist."+product_ids[i], function() {
+            
+            $.ajax({
+
+                url : '',
+                method : 'POST',
+                success : function() {  
+                    <?php $url = $objectManager->create('\Magento\Framework\UrlInterface'); ?>
+                    window.location.href = "<?php echo $block->getUrl('customer/account/login', array('referer' => base64_encode($url->getCurrentUrl()))); ?>";
+                   
+                }
+                
+            });
+
+        });
+        $(document).on("click","ol.product-items.widget-product-grid .actions-secondary a.action.towishlist."+product_ids[i], function() {
+        window.location.href = "<?php echo $block->getUrl('customer/account/login', array('referer' => base64_encode($url->getCurrentUrl()))); ?>";
+
+        });
+	});
+        
+});
+<?php
+}
+?>
+</script>
+<?php endif; ?>

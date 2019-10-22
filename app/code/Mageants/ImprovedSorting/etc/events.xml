@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category Mageants ImprovedSorting
+ * @package Mageants_ImprovedSorting
+ * @copyright Copyright (c) 2018 Mageants
+ * @author Mageants Team <info@mageants.com>
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="admin_system_config_changed_section_improvedSorting_config">
+        <observer name="custom_admin_system_config_changed_section_improvedSorting_config" instance="Mageants\ImprovedSorting\Observer\ConfigObserver"/>
+    </event>
+</config>

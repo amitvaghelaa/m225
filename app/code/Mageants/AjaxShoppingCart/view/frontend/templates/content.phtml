@@ -1,0 +1,204 @@
+<?php
+/**
+ * @category  Mageants AjaxShoppingCart
+ * @package   Mageants_AjaxShoppingCart
+ * @copyright Copyright (c) 2017 Magento
+ * @author    Mageants Team <support@mageants.com>
+ */
+
+$controller=$this->getRequest()->getControllerName();
+$helper  = $this->helper('Mageants\AjaxShoppingCart\Helper\Data');
+
+if ($controller=="product") {
+	$enabledAjex = $helper->getConfigValue("mageants_ajaxshoppingcart/general/enabled");
+	$popupclose = $helper->getConfigValue("mageants_ajaxshoppingcart/general/popupclose");
+	$flying_image = $helper->getConfigValue("mageants_ajaxshoppingcart/display/flying_image");
+	$product_view_page = $helper->getConfigValue("mageants_ajaxshoppingcart/general/product_view_page");
+
+	setcookie("isprodutcproduct", 1, time() + 3600, "/");
+	setcookie("enabledAjex", $enabledAjex, time() + 3600, "/");
+	setcookie("product_view_page", $product_view_page, time() + 3600, "/");
+	setcookie("popupclose", $popupclose, time() + 3600, "/");
+	setcookie("flying_image", $flying_image, time() + 3600, "/");
+}
+else{
+	$enabledAjex = $helper->getConfigValue("mageants_ajaxshoppingcart/general/enabled");
+	$popupclose = $helper->getConfigValue("mageants_ajaxshoppingcart/general/popupclose");
+	$flying_image = $helper->getConfigValue("mageants_ajaxshoppingcart/display/flying_image");
+	$product_view_page = $helper->getConfigValue("mageants_ajaxshoppingcart/general/product_view_page");
+
+	setcookie("isprodutcproduct", 0, time() + 3600, "/");
+	setcookie("enabledAjex", $enabledAjex, time() + 3600, "/");
+	setcookie("product_view_page", $product_view_page, time() + 3600, "/");
+	setcookie("popupclose", $popupclose, time() + 3600, "/");
+	setcookie("flying_image", $flying_image, time() + 3600, "/");
+}
+
+if($helper->getConfigValue("mageants_ajaxshoppingcart/general/enabled")):
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$customerSession = $objectManager->create('Magento\Customer\Model\Session');	
+?>
+<a class="popup-with-form" href="#cartpro_modal"></a>
+<input type="button" name="cartfly" id="cartfly" style="display: none;">
+<script>
+	window.imgpath = '<?php echo $this->getViewFileUrl('Mageants_AjaxShoppingCart/images/close-canvas.png') ?>';
+	window.canvas_cart = '<?php echo $helper->getConfigValue("mageants_ajaxshoppingcart/general/canvas_cart") ?>';
+</script>
+
+<script type="text/javascript" xml="space">
+	var popup_anchor = '';
+	var form_key_set='';
+	var timeout;
+	var timer;
+	require([
+		"jquery",
+		"jquery/ui",
+		"accordion",
+		"mage/collapsible",
+		"mage/redirect-url",
+        "Magento_Catalog/product/view/validation",
+        "Magento_Catalog/js/catalog-add-to-cart",
+        "magnific/popup",
+        "https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"
+	], function ($) {
+		$(document).ready(function($){
+			var enable_ajax_cart = '<?php echo $helper->getConfigValue("mageants_ajaxshoppingcart/general/enabled"); ?>';
+			var confirm_countdown_number ='<?php echo $helper->getConfigValue("mageants_ajaxshoppingcart/general/popupclose"); ?>';
+			var enable_fly_cart = <?php echo $helper->getConfigValue("mageants_ajaxshoppingcart/display/flying_image"); ?>;
+			var product_view_page=<?php echo $helper->getConfigValue("mageants_ajaxshoppingcart/general/product_view_page"); ?>;
+
+			function loadaJax(){
+				if(enable_ajax_cart && enable_ajax_cart == 1)
+				{
+					var controller='<?php echo $controller ?>';
+					if(controller=="product"){
+							_eventCart();	
+					}else if(controller == "category" || controller == "result")
+					{
+						_eventCart();
+					}else{
+						return;
+					}
+
+				} 
+			}
+	
+			function _resetModal(){	
+				var $ = (typeof $ !== 'undefined') ? $ : jQuery.noConflict();
+				$('.cpmodal-iframe').empty();
+				$("[class^=cpmodal-message-]").each(function() {
+				    $(this).hide();
+				});
+			}
+	
+			function _eventCart(){
+				var $ = (typeof $ !== 'undefined') ? $ : jQuery.noConflict();
+				var $this;
+				$(".action.tocart").removeAttr("data-mage-init");
+				$(".action.tocart").unbind('click').click(function(e) {
+					$this = this;
+				});	
+
+				$("#cartfly").click(function(e) {
+					if(enable_fly_cart == 1 ){
+			    		_cartFly($this);
+			    	}
+				});	
+						
+
+			}
+	
+			function _cartFly(_e){
+				var $ = (typeof $ !== 'undefined') ? $ : jQuery.noConflict();
+				_resetModal();				
+				var params = {};
+				var imgtodrag
+				var productUrl="";
+				if($(_e).data('post'))
+				{	params = $(_e).data('post').data;	
+				}else if($(_e).closest('form').length){	
+					params = $(_e).closest('form').serializeArray();
+				}else {
+					params.product = $(_e).closest('.product-item-info').find('.price-box').data('product-id'); 
+				}
+				params.form_key = $('input[name=form_key]').val();
+				if(!params.product)
+				{
+					var controller='<?php echo $controller ?>';
+					if(controller=="category" || controller == "result")
+					{ 	params.product = $(_e).closest('.product-item-info').find('.price-box').data('product-id');
+						imgtodrag = jQuery(_e).parents('.item.product.product-item').find(".product-image-wrapper").find(".product-image-photo").eq(0);
+					}else{
+						params.product = $(_e).closest('form').find("input[name=product]").val();
+						imgtodrag=$(_e).closest('#maincontent').find(".fotorama__active").find(".fotorama__img").eq(0);
+					}
+				}
+				productUrl=$(_e).closest('.product-item-info').find(".product-item-photo").attr("href");
+				$("#ajaxProductAdd").val(params.product);
+				var cart = jQuery('.minicart-wrapper');
+		        if (imgtodrag) {
+		            var imgclone = imgtodrag.clone()
+		                .removeClass('product-image-photo')
+		                .addClass('product-image-photo-clone')
+
+		                .offset({
+		                top: imgtodrag.offset().top,
+		                left: imgtodrag.offset().left
+		            })
+		                .css({
+		                'opacity': '0.5',
+		                    'position': 'absolute',
+		                    'height': '150px',
+		                    'width': '150px',
+		                    'z-index': '100'
+		            })
+		                .appendTo(jQuery('body'))
+		                .animate({
+		                'top': cart.offset().top + 10,
+		                    'left': cart.offset().left + 10,
+		                    'width': 75,
+		                    'height': 75
+		            }, 2000, 'easeInOutExpo');
+		            
+		            setTimeout(function () {
+		                cart.effect("shake", {
+		                    times: 2
+		                }, 500);
+		            }, 2000);
+		            
+		            imgclone.animate({
+		                'width': 0,
+		                    'height': 0
+		            }, function () {
+		                jQuery(this).detach()
+		            });
+		        }
+		         
+		        setTimeout(function () {
+		        	$(".minicart-wrapper").addClass("active");
+			        $(".showcart").addClass("active");
+			        $(".minicart-wrapper .ui-dialog").addClass("open");
+			        $("#overlayCart").show();        
+		        }, 2000);
+
+		        $(".minicart-load.loading-mask").show();
+				return false;					
+			}
+
+			loadaJax(); 
+
+			$(".cp-close").click(function(e) {
+				clearTimeout(timeout);	
+				$("#cartpro_modal").hide();
+				$('html').removeClass('cartpro-block');
+				 _resetModal();
+			});	
+
+			$('.buttonContinue').on('click', function () {		
+				clearTimeout(timeout);							
+				 _resetModal();	
+			});		
+		});	
+	});
+</script>
+<?php endif; ?>

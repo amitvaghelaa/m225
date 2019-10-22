@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="mageants" translate="label" sortOrder="40">
+            <label>Mageants</label>
+        </tab>
+        <section id="mageants_ajaxshoppingcart" translate="label" type="text" sortOrder="320" showInDefault="1" showInWebsite="1" showInStore="1">
+            <tab>mageants</tab>
+            <label>Ajax Cart</label>
+            <resource>Mageants_AjaxShoppingCart::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Enable Ajax Shopping Cart</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="canvas_cart" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Enable Canvas Cart</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="popupclose" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Popup Will Close After</label>
+                    <validate>required-entry validate-digits validate-digits-range digits-range-0-</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    
+                </field>
+                <field id="product_view_page" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Use Ajax Shopping Cart on Product View Pages</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <group id="display" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Display setting</label>
+                <field id="flying_image" translate="label" type="select" sortOrder="0" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Enable flying image effect</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[When set to 'Yes', the image of the product added to cart 'flies' to the 'Top Cart' block in the top menu. Looks nice.]]></comment>
+                </field>
+                <field id="image" translate="label" type="select" sortOrder="60" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Display Product Image in Dialog</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="show_cart_info" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Show Cart Information in Success Popup</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="product_cart" translate="label" type="select" sortOrder="60" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Display Total Count of Products in Cart</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="show_cart_info">1</field>
+                    </depends>
+                </field>
+                <field id="cart_total" translate="label" type="select" sortOrder="60" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Display Total Amount in Cart</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="show_cart_info">1</field>
+                    </depends>
+                </field>
+                <field id="checkout" translate="label" type="select" sortOrder="60" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Display 'Go to Checkout' Button</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+
+             <group id="selling" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Selling Options</label>
+                
+                <field id="align" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Choose the Product Block Type to Display in the Confirmation Dialog</label>
+                    <source_model>Mageants\AjaxShoppingCart\Model\Config\Source\Selling</source_model>
+                </field>
+                
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Product Block Title</label>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="align" separator=",">related,crosssell</field>
+                    </depends>
+                </field>
+                <field id="sellingCount" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>No of Porduct to Display In popup.(Between 1-10 Only.)</label>
+                    <validate>required-entry validate-digits validate-digits-range digits-range-1-10</validate>
+                    <depends>
+                        <field id="align" separator=",">related,crosssell</field>
+                    </depends>
+                </field>
+
+                <field id="slider" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Use slider in Display Popup</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[ If you select 'No' then Maximum 3 Selling product display in popup. ]]></comment>
+                </field>
+
+                <field id="slidernav" translate="label" type="select" sortOrder="50" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Use Navigation in slider</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>                    
+                    <depends>
+                        <field id="slider">1</field>
+                    </depends>
+                </field>
+
+                <field id="sliderautoplay" translate="label" type="select" sortOrder="60" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Use Autoplay in slider</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>                    
+                    <depends>
+                        <field id="slider">1</field>
+                    </depends>
+                </field>
+
+                <field id="autoplayafter" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Slider Autoplay After</label>
+                    <depends>
+                        <field id="slider">1</field>
+                    </depends>                    
+                </field>
+
+
+                <field id="slideritemloop" translate="label" type="select" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Use item loop in slider </label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>                    
+                    <depends>
+                        <field id="slider">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

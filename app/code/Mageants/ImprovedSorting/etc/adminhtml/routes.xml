@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category Mageants ImprovedSorting
+ * @package Mageants_ImprovedSorting
+ * @copyright Copyright (c) 2018 Mageants
+ * @author Mageants Team <info@mageants.com>
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="admin">
+        <route id="mageants_improvedSorting" frontName="mageants_improvedSorting">
+            <module name="Mageants_ImprovedSorting" before="Magento_Backend" />
+        </route>
+    </router>
+</config>

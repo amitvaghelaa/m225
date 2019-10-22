@@ -1,0 +1,229 @@
+<?php
+/**
+ * @category  Mageants AjaxShoppingCart
+ * @package   Mageants_AjaxShoppingCart
+ * @copyright Copyright (c) 2017 Magento
+ * @author    Mageants Team <support@mageants.com>
+ */
+// product Id=24220
+/** @var $block \Magento\Checkout\Block\Cart\Sidebar */
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$cartManagement = $objectManager->create(\Magento\Quote\Api\CartManagementInterface::class);
+$cartId=$cartManagement->createEmptyCart();
+$checkoutSession=$objectManager->get("\Magento\Checkout\Model\Session");
+$counter = $this->helper('\Magento\Checkout\Helper\Cart'); 
+$itemCount=$counter->getItemsCount();
+$helper = $this->helper('Mageants\AjaxShoppingCart\Helper\Data');
+if($helper->getConfigValue("mageants_ajaxshoppingcart/general/canvas_cart")){
+?>
+<style type="text/css">
+    .loadminicart{
+        display: block !important;
+    }
+</style>
+<div id="overlayCart"></div>
+<div class="minicart-content">
+    <a class="action showcart" href="<?php /* @escapeNotVerified */ echo $block->getShoppingCartUrl(); ?>"
+       data-bind="scope: 'minicart_content'">
+        <span class="text"><?php /* @escapeNotVerified */ echo __('My Cart'); ?></span>
+        <span class="counter qty empty"
+              data-bind="css: { empty: !!getCartParam('summary_count') == false }, blockLoader: isLoading">
+            <span class="counter-number"><!-- ko text: getCartParam('summary_count') --><!-- /ko --></span>
+            <span class="counter-label">
+            <!-- ko if: getCartParam('summary_count') -->
+                <!-- ko text: getCartParam('summary_count') --><!-- /ko -->
+                <!-- ko i18n: 'items' --><!-- /ko -->
+            <!-- /ko -->
+            </span>
+        </span>
+    </a>
+    <div data-block="minicart" class="minicart-wrapper" id="minicart-wrapper">
+        <?php if ($block->getIsNeedToDisplaySideBar()): ?>
+            <div class="canvascart-content canvas-minicart empty" data-role="dropdownDialog" data-mage-init='{"dropdownDialog":{"appendTo":"[data-block=minicart]","triggerTarget":".showcart","timeout": "2000","closeOnMouseLeave": false,"closeOnEscape": true,"triggerClass":"active","parentClass":"active","buttons":[]}}' style="display: none;"s>                
+                <div id="minicart-content-wrapper" class="minicart-content-wrapper" data-bind="scope: 'minicart_content'">
+                    <!-- ko template: getTemplate() --><!-- /ko -->
+                    <div class="minicart-load loading-mask" data-role="loader" style="display:none;">
+                        <div class="loader">
+                            <img alt="Loading..." src="<?php echo $this->getViewFileUrl('Mageants_AjaxShoppingCart/images/loader.gif'); ?>">
+                        </div>
+                    </div>
+                </div>
+                <div id="cart_summary_mini" class="minicart-bottom canvas-btm" style="overflow-x: auto;">
+                    <?php echo $block->getChildHtml('with-items'); ?>
+                </div>
+            </div> 
+        <?php endif ?> 
+    </div>
+    <script>
+        window.checkout = <?php /* @escapeNotVerified */ echo \Zend_Json::encode($block->getConfig()); ?>;
+    </script>
+    <script type="text/x-magento-init">
+        {
+            "[data-block='minicart']": {
+                "Magento_Ui/js/core/app": <?php /* @escapeNotVerified */ echo $block->getJsLayout();?>
+            },
+            "*": {
+                "Magento_Ui/js/block-loader": "<?php /* @escapeNotVerified */ echo $block->getViewFileUrl('Mageants_AjaxShoppingCart/images/loader.gif'); ?>"
+            }
+        }
+    </script>
+</div>
+<input type="hidden" id="base_url" class="base_url" value="<?=$helper->getBaseUrl();?>">
+<script type="text/javascript">
+    require(["jquery",'mage/storage',
+    'Magento_Checkout/js/model/quote',
+    'Magento_Checkout/js/model/resource-url-manager',    
+    'mage/cookies'
+    ],function($,storage,quote,resourceUrlManager){
+        // var elem = $( '#overlay' )[0];    
+        var items_count = $.cookie('no_items_count');
+        $('.showcart').click(function(e){
+            e.preventDefault();
+            $(".minicart-wrapper").addClass("active");
+            $(".minicart-wrapper").css("display", "block");
+            $(".showcart").addClass("active");
+            $(".minicart-wrapper .ui-dialog").addClass("open");            
+            $("#overlayCart").show();
+        });
+        $('#overlayCart').click(function(e){
+            e.preventDefault();
+            $("#overlayCart").hide();
+            $(".minicart-wrapper").toggleClass("active");
+            $(".showcart").toggleClass("active");
+            $(".minicart-wrapper .ui-dialog").removeClass("open");
+            //return false;
+        }); 
+        $( document ).ajaxSend(function(event, xhr, settings) {
+            var str1=settings.url;
+            var str2="customer/section/load";
+            if(str1.indexOf(str2) != -1){
+               // $(".minicart-load.loading-mask").show();
+            }
+        });
+        $(document).ajaxComplete(function( event, xhr, settings ) {
+            var str1=settings.url;
+            var str2="customer/section/load";
+            var country = $('[name="country_id"] option:selected').val();
+                    $(".minicart-load.loading-mask").hide();
+           // console.log("country => "+country);
+            $('[name="country_id"] option:selected').next().attr('selected', 'selected');
+            $('[name="country_id"]').val($('[name="country_id"] option:selected').val()).change();
+            $('[name="country_id"]').val(country).change();
+            
+            if(str1.indexOf(str2) != -1){
+                $(".minicart-load.loading-mask").show();
+                if(parseInt($(".action.showcart .counter-number").text())>0)
+                {
+                    var maskId=$.cookie("maskIdCookie");
+                    var totalUrl=resourceUrlManager.getUrlForCartTotals(quote);
+                    if (totalUrl.indexOf(":quoteId") >= 0)
+                    {
+                        var res = totalUrl.replace(":quoteId", maskId);
+                        storage.get(
+                            res,
+                            false
+                        ).done(function (response) {
+                            quote.setTotals(response);
+                        });
+                    }else{
+                        storage.get(
+                            resourceUrlManager.getUrlForCartTotals(quote),
+                            false
+                        ).done(function (response) {
+                            quote.setTotals(response);
+                        });
+                    }
+                    $("#cart_summary_mini").show();
+                    $(".minicart-load.loading-mask").hide();
+                }else{
+                    $("#cart_summary_mini").hide();
+                    $(".minicart-load.loading-mask").hide();
+                }
+            }
+            $(".minicart-load.loading-mask").hide();
+        });
+        $( document ).ready(function() {
+
+            // -- display minicart after redirect from cart page to any page with 0 items start
+            if (items_count == 0) {
+                setTimeout(function(){                
+                    $.cookie('no_items_count', null, { path: '/' });
+                    $('.showcart').click();
+                }, 2000); 
+            }
+            // -- End
+             
+            var url=window.location.href;
+            if(url.indexOf("from_redirect=cart") != -1)
+            {
+                setTimeout(function(){ 
+                    $(".minicart-wrapper").addClass("active");
+                    $(".showcart").addClass("active");
+                    $(".minicart-wrapper .ui-dialog").addClass("open");            
+                    $("#overlayCart").show();
+                }, 3000);
+            }
+            $("#block-discount .title").click(function(){
+                $("#block-discount .content").slideToggle(500);
+                $(this).parent().toggleClass("active")
+            });
+            $("#block-shipping .title").click(function(){
+                $("#block-summary").slideToggle(500);
+                $(this).parent().toggleClass("active")
+            });
+        });
+    });
+</script>
+<?php
+}else
+{ ?>
+    <div data-block="minicart" class="minicart-wrapper">
+    <a class="action showcart" href="<?= /* @escapeNotVerified */ $block->getShoppingCartUrl() ?>"
+       data-bind="scope: 'minicart_content'">
+        <span class="text"><?= /* @escapeNotVerified */ __('My Cart') ?></span>
+        <span class="counter qty empty"
+              data-bind="css: { empty: !!getCartParam('summary_count') == false }, blockLoader: isLoading">
+            <span class="counter-number"><!-- ko text: getCartParam('summary_count') --><!-- /ko --></span>
+            <span class="counter-label">
+            <!-- ko if: getCartParam('summary_count') -->
+                <!-- ko text: getCartParam('summary_count') --><!-- /ko -->
+                <!-- ko i18n: 'items' --><!-- /ko -->
+            <!-- /ko -->
+            </span>
+        </span>
+    </a>
+    <?php if ($block->getIsNeedToDisplaySideBar()): ?>
+        <div class="block block-minicart empty"
+             data-role="dropdownDialog"
+             data-mage-init='{"dropdownDialog":{
+                "appendTo":"[data-block=minicart]",
+                "triggerTarget":".showcart",
+                "timeout": "2000",
+                "closeOnMouseLeave": false,
+                "closeOnEscape": true,
+                "triggerClass":"active",
+                "parentClass":"active",
+                "buttons":[]}}'>
+            <div id="minicart-content-wrapper" data-bind="scope: 'minicart_content'">
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            </div>
+            <?= $block->getChildHtml('minicart.addons') ?>
+        </div>
+    <?php endif ?>
+    <script>
+        window.checkout = <?= /* @escapeNotVerified */ $block->getSerializedConfig() ?>;
+    </script>
+    <script type="text/x-magento-init">
+    {
+        "[data-block='minicart']": {
+            "Magento_Ui/js/core/app": <?= /* @escapeNotVerified */ $block->getJsLayout() ?>
+        },
+        "*": {
+            "Magento_Ui/js/block-loader": "<?= /* @escapeNotVerified */ $block->getViewFileUrl('images/loader-1.gif') ?>"
+        }
+    }
+    </script>
+</div>
+<?php
+}
+?>

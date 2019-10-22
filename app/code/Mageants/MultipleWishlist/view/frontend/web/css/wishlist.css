@@ -1,0 +1,315 @@
+
+.mageants_towishlist .message, #magewishlist .list_input, .mageants_towishlist .product_exist,.mageants_towishlist .select_options , .magewishlist_view .product_exist, .listupdate .message{
+    color: red;
+}
+#magewishlist #wishlist_name {
+    font-weight: normal;
+}
+.mageants_towishlist .towishlist{
+    padding: 0px;
+    margin: 0px;
+}
+.mageants_towishlist .towishlist:hover {
+    text-decoration: none;
+    margin-right: 0;
+}
+.mageants_towishlist .wishlist_dropdown{
+    width: 37px;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+.mageants_towishlist input#wishlist_dropdown{
+    display: none;
+}
+.mageants_towishlist ul.submenu {
+  max-height: 0;
+  overflow: scroll;
+  list-style: none;
+  margin-bottom: 0.5rem;
+  width: 230px;
+}
+.mageants_towishlist ul.submenu li a{
+    color: #666;
+    text-decoration: none;
+}
+.mageants_towishlist ul.submenu li a img{
+    width: 40px;
+    height: 40px;
+    float: left;
+}
+.mageants_towishlist ul.submenu li a:hover{
+    color: #333;
+    
+}
+.mageants_towishlist label {
+  position: relative;
+  cursor: pointer;
+}
+.mageants_towishlist input:checked~ul.submenu {
+  max-height: 300px;
+}
+.mageants_towishlist img.dropdown_icon{
+    width: 12px;
+    height: 12px;
+}
+.towishlistPopup .product_info, .magewishlist_view .product_info {
+    width: 33%;
+    float: left;
+}
+.mageants_towishlist div.prod_wishlist_name {
+    color: #111;
+}
+.towishlistPopup .product_image, .magewishlist_view .product_image {
+    float: left;
+    width: 25%;
+    text-align: center;
+}
+.mageants_towishlist .new_wishlist_li:before{
+    background-image: url('../images/plus.png');
+    background-size: 100% 100%;
+    display: inline-block;
+    width: 10px; 
+    height: 10px;
+    content:"";
+}
+.mageants_towishlist #new_wishlist{
+    text-decoration: none;
+}
+/*====================================================LIST============================================================================*/
+
+.magewishlist_view .wishlist_ul{
+    width: 100%;
+    padding: 30px 0;
+    box-sizing: border-box;
+        
+}
+.magewishlist_view .wishlist_ul div
+{
+    
+    display: inline-block;
+    padding: 10px 10px;
+    
+}
+.magewishlist_view .wishlist_ul{
+    border: solid 1px lightgray;
+}
+.magewishlist_view .wishlist_name{
+    
+    font-weight: bold;
+    color: black;
+}
+.magewishlist_view .removeproduct, .magewishlist_view .removelist{
+    float: right;
+}
+.magewishlist_view .list{
+    padding: 10px;
+}
+.magewishlist_view .list span{
+    padding-right: 10px;
+}
+.magewishlist_view a.removeproduct {
+    color: #333;
+    text-decoration: none;
+    border: none;
+    font-weight: 600;
+    width: 48%;
+}
+.magewishlist_view .product_actions{
+    width: 23%;
+}
+.magewishlist_view .product_price{
+    width: 100%;
+    float: left;
+}
+.magewishlist_view .action.tocart.primary{
+    width: 100%;
+}
+.magewishlist_view .action_btn {
+    display: inline-block;
+    float: left;
+    padding: 10px 0;
+    width: 100%
+}
+.magewishlist_view .wishlistoption {
+    width: 48%;
+    border-radius: 3px;
+}
+.magewishlist_view .removeproduct button{
+    width: 100%;
+}
+.magewishlist_view .create_new_wishlist {
+    text-align: right;
+}
+.magewishlist_view .actions-toolbar>.secondary .action.back{
+    display: block;
+}
+.magewishlist_view .secondary, .magewishlist_view .primary{
+    padding : 10px 0;
+    float: left;
+}
+.magewishlist_view .secondary a{
+    text-decoration: none;
+}
+.magewishlist_view .actions-toolbar{
+    float:left;
+}
+/*==========start 4.13pm date 11-14-18==========*/
+.block.account-nav{
+    margin: 0;
+}
+.account.page-layout-2columns-left .sidebar-main .magewishlist_sidebar .magewishlist_sidebar_title{
+    padding: 0 0 6px 15px;
+    font-size: 20px;
+    color: #111!important;
+    background-color: #f0f0f0;
+    font-weight: 600;
+}
+.account.favorite-index-index .sidebar-main .magewishlist_sidebar {
+    border: 1px solid #f0f0f0;
+}
+.account.favorite-index-index .sidebar-main .magewishlist_name {
+    padding: 10px 0 10px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+}
+
+.account.favorite-index-index .sidebar-main .magewishlist_name a {
+    color: #111;
+    text-decoration: none;
+    cursor: pointer;
+}
+.account .page-main .page-title-wrapper .page-title {
+    font-size: 20px;
+    margin: 0;
+    margin-top: 12px;
+    font-weight: 600;
+}
+.account.page-layout-2columns-left .column.main .wishlist_title{
+    color: #a0a0a0;
+    display: inline-block;
+    float: inherit;
+}
+.account .page-main .page-title-wrapper .magewishlist_view .product_image {
+    float: left;
+    width: 20%;
+    text-align: center;
+    float: left;
+}
+.magewishlist_view .create_new_wishlist {
+    text-align: right;
+    color: #ccc;
+    display: inline-block;
+    padding: 10px;
+}
+.magewishlist_view .create_new_wishlist a {
+    color: #111;
+    font-weight: 600;
+}
+.account .page-main .page-title-wrapper .towishlistPopup .product_info, .magewishlist_view .product_info {
+    width: 45%;
+    float: left;
+}
+.account .page-main .page-title-wrapper .magewishlist_view .product_actions {
+    width: 28%;
+}
+.magewishlist_view .wishlist_ul {
+    width: 100%;
+    padding: 30px 0;
+}
+
+/*.catalog-product-view.product-summit-watch start*/
+
+.catalog-product-view .product-social-links .mageants_towishlist {
+    display: inline-block;
+    width: 50%;
+    position: relative;
+}
+.catalog-product-view .mageants_towishlist .towishlist {
+    padding: 0px;
+    margin: 0px;
+    position: inherit;
+}
+.catalog-product-view .mageants_towishlist a.action.towishlist {
+    float: left;
+}
+.catalog-product-view .mageants_towishlist ul.submenu {
+    max-height: 0;
+    overflow: auto;
+    list-style: none;
+    margin-bottom: 0.5rem;
+    width: 200px;
+    /* padding-left: 0; */
+    position: absolute;
+    top: 20px;
+    background: #f7f7f7;
+    padding: 0 0 0 11px;
+    z-index: 4;
+}
+
+
+/*model popup*/
+
+.catalog-product-view .towishlistPopup .product_info, .magewishlist_view .product_info {
+    width: 41%!important;
+    /* float: left; */
+    display: inline-block!important;
+}
+.magewishlist_view .product_actions {
+    width: 23%;
+    display: inline-block;
+}
+.catalog-product-view .modal-popup .modal-title {
+    border-bottom: 1px solid #c1c1c1;
+    font-weight: 400;
+    padding-bottom: 4px;
+    font-size: 26px;
+    margin-bottom: 0;
+    min-height: 1em;
+    word-wrap: break-word;
+    text-transform: uppercase;
+    width: 57%;
+}
+
+.catalog-product-view .modal-popup.modal-slide .modal-footer {
+    border-top: 1px solid #c1c1c1;
+    text-align: right;
+    padding: 10px 0 3rem;
+    width: 94%;
+    margin: 0 auto;
+}
+.magewishlist_view div.magewishlist_input,div.magewishlist_email, .magewishlist_input, .create_magewishlist .exist, .wishlistupdate .wishlist_message{
+    color: red;
+}
+.magewishlist_email_success,.magewishlist_view .product_moved{
+    color: green;
+}
+.magewishlist_view .remove_magewishlist, .magewishlist_view .edit_magewishlist {
+    display: inline-block;
+    float: right;
+    padding-right: 15px;
+}
+.magewishlist_view .remove_magewishlist a, .magewishlist_view .edit_magewishlist a{
+    color: #111;
+    font-weight: 600;
+}
+.magewishlist_view .remove_magewishlist a,.magewishlist_view .create_new_wishlist a , .magewishlist_view .edit_magewishlist a{
+    cursor: pointer;
+}
+.magewishlist_view .magewishlist_header {
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    margin-top: 10px;
+    border-bottom: 0;
+}
+.magewishlist_sidebar .active{
+    background-color: lightgray;
+}
+.magewishlist_view .empty_magewishlist {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+

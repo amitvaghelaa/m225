@@ -1,0 +1,138 @@
+<?php
+/**
+ * @category Mageants MultipleWishlist
+ * @package Mageants_MultipleWishlist
+ * @copyright Copyright (c) 2017 Mageants
+ * @author Mageants Team <info@mageants.com>
+ */
+
+/** @var \Magento\Wishlist\Block\Customer\Sidebar $block */
+?>
+<?php
+$wishlistHelper = $this->helper('Magento\Wishlist\Helper\Data');
+?>
+<?php if ($wishlistHelper->isAllow()) : ?>
+    <div class="block block-wishlist" data-bind="scope: 'wishlist'">
+        <div class="block-title">
+            <strong role="heading" aria-level="2"><?= $block->escapeHtml($block->getTitle()) ?></strong>
+        </div>
+        <div class="block-content">
+            <strong class="subtitle"><?= $block->escapeHtml(__('Last Added Items')) ?></strong>
+                <?php
+                    $wishlistBlock= $block->getLayout()->createBlock('Mageants\MultipleWishlist\Block\WishlistData');
+                    $wishlistProductColl = $wishlistBlock->getWishlistProductColl();
+                    if(sizeof($wishlistProductColl) != 0){ 
+                        foreach($wishlistProductColl as $wishlistProduct){
+                            $product_id[] = $wishlistProduct['product_id'];
+                        }
+                        $allProductId = array_slice($product_id, -3, 3, true);
+                        ?>
+                        <ol class="product-items" id="wishlist-sidebar">
+                            <?php
+                            foreach($allProductId as $product_id){ 
+                                $data = $wishlistBlock->getProductByID($product_id);
+                                ?>
+                                <li class="product-item">
+                                    <div class="product-item-info">
+                                        <?php
+                                        $imageHelper  = $this->helper('\Magento\Catalog\Helper\Image');
+                                        $image_url = $imageHelper->init($data,'product_page_image_small')->setImageFile($data->getFile())->getUrl();
+                                        ?>
+                                        
+                                        <a href="<?php echo $data->getProductUrl(); ?>" class="product-item-photo">
+                                            <span class="product-image-container">
+                                                <img src="<?php echo $image_url;?>" class="product-item-photo" alt="" style="width: 75px; height: 90px;"/>
+                                            </span>
+                                        </a> 
+                                        
+                                        <div class="product-item-details">
+                                            <strong class="product-item-name">
+                                                <a href="<?php echo $data->getProductUrl(); ?>" class="product-item-link">
+                                                    <?php print_r($data->getName()); ?>
+                                                </a>
+                                            </strong>
+                                            <div class="product_price">
+                                                <?php 
+                                                  $priceHelper = $this->helper('Magento\Framework\Pricing\Helper\Data');
+                                                  $type_id = $data->getTypeId();
+                                                  if($type_id == 'bundle'){
+                                                    $bundleObj=$data->getPriceInfo()->getPrice('final_price');
+                                                    $minRaw = $bundleObj->getMinimalPrice()->getValue();
+                                                    $maxRaw = $bundleObj->getMaximalPrice()->getValue(); 
+                                                    echo 'From '. $priceHelper->currency($minRaw,true,false).'<br>';
+                                                    echo 'To '.$priceHelper->currency($maxRaw,true,false);
+                                                  }
+                                                  else{
+                                                    $price = $data->getFinalPrice();
+                                                    echo $priceHelper->currency($price, true, false);
+                                                  }                      
+                                                ?>
+                                            </div>
+                                            <div class="product-item-actions">
+                                                <?php 
+                                              $product_data = $wishlistBlock->getProductByID($product_id);
+                                              $type_id = $product_data->getTypeId();
+                                              $cartHelper = $this->helper('Magento\Checkout\Helper\Cart');
+                                              if($type_id == 'bundle' || $type_id == 'grouped' || $type_id == 'configurable'){
+                                                $addToCartUrl = $product_data->getProductUrl();
+                                                $cartTitle = 'Customize and Add to Cart';
+                                              }
+                                              else{
+                                                $addToCartUrl = $cartHelper->getAddUrl($data);
+                                                $cartTitle = 'Add to Cart';
+                                              }
+                                              
+                                              ?>
+                                              <form data-role="tocart-form" action="<?php echo $addToCartUrl; ?>" method="post">             
+                                                <button type="submit"
+                                                       title="Add to Cart"
+                                                       class="action tocart primary" onclick="addWishlisttoCart('<?php echo $product_id; ?>')">
+                                                       <span><?php echo $cartTitle; ?></span>
+                                                </button>
+                                              </form> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                             
+                            <?php
+                            }
+                            ?>
+                       </ol>
+                        <div class="actions-toolbar no-display" data-bind="css: {'no-display': null}">
+                            <div class="primary">
+                                <a class="action details"
+                                   href="<?= $block->getUrl('favorite/index/index') ?>"
+                                   title="<?= $block->escapeHtmlAttr(__('Go to Wish List')) ?>"><span><?= $block->escapeHtml(__('Go to Wish List')) ?></span></a>
+                            </div>
+                        </div>
+                <?php
+
+                }else{ ?>
+                    <div class="empty"><?= $block->escapeHtml(__('You have no items in your wish list.')) ?></div>
+                <?php
+                }
+                ?>
+                
+        </div>
+    </div>
+    <script type="text/javascript">
+  function addWishlisttoCart(product_id){
+  require([ 'jquery', 'jquery/ui'], function($){
+        $.ajax({
+      
+            url : '<?php echo $block->getUrl('favorite/index/wishlist'); ?>',
+            method : 'POST',
+            data : { 
+                 product_id : product_id,
+                 wishlistdata : 'addtocart'
+                },
+            
+        });
+
+     return false;
+   });   
+ 
+}
+    </script>
+<?php endif ?>

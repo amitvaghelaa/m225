@@ -1,0 +1,31 @@
+<?php
+$helper  = $this->helper('Mageants\AjaxShoppingCart\Helper\Data');
+?>
+<style type="text/css">
+.block-minicart .block-subtitle .close,.block-minicart .shipping-block-subtitle .close{text-align: left;display: block;
+    color: #636363;text-decoration: none;font-weight: bold;
+    font-size: 16px;margin-left: 10px;position: unset;
+    width: 98%;z-index: 999;line-height: 25px;}
+.block-minicart a.close .back-img{
+    float: right;margin: 4px 5px 0 0;width: 18px;}
+.minicart-wrapper .block-minicart{overflow:hidden ;}
+.canvas-top{display: flex; flex-direction: column; height: 100%;} 
+.canvas-top .block-content{flex: 1 1 0; overflow:auto;}
+.canvascart-content {box-sizing: content-box ;}
+.canvas-btm td, .canvas-btm th{border:none ;}
+.canvas-btm .table-wrapper {border-bottom: 1px solid #dddddd; border-top: 1px solid #dddddd; margin-left: 10px; margin-right: 10px;}
+.canvas-btm .table-wrapper td {font-weight: 600;  text-align: right;}
+.canvas-top .close .action.close {position: absolute;  right: 10px ;  text-align: right;top: 10px;}
+.canvas-top .minicart-items-wrapper{padding-left:0px; padding-right:0px;}
+.canvas-top .minicart-items-wrapper ol li{border-bottom:1px solid #ddd;}
+.canvas-top .minicart-items-wrapper ol li .product{padding-left:10px; padding-right:10px;}
+.canvas-top .minicart-items .product-item:not(:first-child){border-top:none ;}
+.cartpro-modal .center img{display:inline ;}
+.cartpro-modal .products ol.list li.item {width: 33%;}
+.cartpro-modal .products ol.list li.item .actions.product {margin: 0 ;  text-align: center ;}
+.cartpro-modal .products ol.list li.item .actions.product .actions-primary{display:block ;}
+@media only screen and (max-width: 640px) {
+	.cartpro-modal .cpmodal-wrapper{position:inherit ; width: 100% ; padding:5px ;}
+	.cartpro-modal {width: 100% ;  padding: 0px ;}
+}
+</style>

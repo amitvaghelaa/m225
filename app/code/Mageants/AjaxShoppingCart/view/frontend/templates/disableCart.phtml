@@ -1,0 +1,25 @@
+<?php
+$helper  = $this->helper('Mageants\AjaxShoppingCart\Helper\Data');
+$cart=$helper->getConfigValue("mageants_ajaxshoppingcart/general/canvas_cart");
+?>
+<input type="hidden" id="canvas_cart_enable" name="canvas_cart_enable" value='<?php echo $helper->getConfigValue("mageants_ajaxshoppingcart/general/canvas_cart"); ?>' />
+<?php if(!$cart){ ?>
+	<style type="text/css">
+		label.label.default{display: block;}
+		button.update-cart-item.default{display: block;}
+		button.update-cart-item.inc,button.update-cart-item.dec{display: none;}
+		span.canvasCart.span{display: none;}
+		div.details-qty.qty.default{display: block;}
+		div.details-qty.qty.canvascart{display: none;}
+	</style>
+<?php }else{ ?>
+	<style type="text/css">
+		label.label.default{display: none;}
+		button.update-cart-item.default{display: none;}
+		button.update-cart-item.inc,button.update-cart-item.dec{display: block;}
+		span.canvasCart.span{display: block;}
+		div.details-qty.qty.default{display: none !important;}
+		div.details-qty.qty.canvascart{display: block;}
+		#mini-cart .product-item-details .product.actions .primary{display: none;}
+	</style>
+<?php }?>

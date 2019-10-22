@@ -1,0 +1,29 @@
+<?php echo "hhhhhhhh";?>
+<script>
+require(["jquery"], function($) {
+var url = $('.next').attr('href');
+if (typeof url === "undefined") {
+$('#load-more-product').html('');
+}
+$('#load-more-product-link').on('click', function() {
+var url = $('.next').attr('href');
+$('#load-more-product').hide();
+$('#load-more-loader').show();
+$.get(url, function(data) {
+$('#load-more-loader').hide();
+$('#load-more-product').show();
+var result = $(data).find('.item.product.product-item');
+var nxtUrl = $(data).find('.next').attr('href');
+result.each(function(index, value) {
+$('.products.list.items.product-items').append(value);
+$("form[data-role='tocart-form']").catalogAddToCart();
+});
+if (typeof nxtUrl === "undefined") {
+$('#load-more-product').html('<em>No More product in this Category.</em>');
+} else {
+$('.next').attr('href', nxtUrl);
+}
+});
+});
+});
+</script>

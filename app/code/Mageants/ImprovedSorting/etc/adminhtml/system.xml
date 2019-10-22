@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category Mageants ImprovedSorting
+ * @package Mageants_ImprovedSorting
+ * @copyright Copyright (c) 2018 Mageants
+ * @author Mageants Team <info@mageants.com>
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="mageants" translate="label" sortOrder="100">
+            <label>Mageants</label>
+        </tab>
+        <section id="improvedSorting_config" translate="label" type="text" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+            <tab>mageants</tab>
+            <label>Improved Sorting</label>
+            <resource>Mageants_ImprovedSorting::configuration</resource>
+            <group id="improvedSorting_general_settings" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Configuation</label>
+                <field id="module_enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Module Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field> 
+                <field id="default_sorting_searchpage" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Set Default Sorting On Search Page</label>
+                    <source_model>Mageants\ImprovedSorting\Model\Source\CustomSearchAttribute</source_model>
+                </field> 
+                <field id="hide_position_sorting" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Hide Position Sorting Option On Frontend</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field> 
+                <field id="show_product_image" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Products without Images In Last</label>
+                    <source_model>Mageants\ImprovedSorting\Model\Source\CustomYesNo</source_model>
+                </field>   
+                <field id="show_outofstock_product" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Out Of Stock Products In Last</label>
+                    <source_model>Mageants\ImprovedSorting\Model\Source\CustomYesNo</source_model>
+                </field>
+                <field id="show_outofstock_qty_product" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use Qty To Determine If The Products Is Out Of Stock</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[If yes then products with the qty < 1 will be shown in last.]]></comment>
+                    <depends>
+                        <field id="show_outofstock_product" separator="|">1|2</field>
+                    </depends>
+                </field> 
+                <field id="disable_sorting" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Disable Sorting Options</label>
+                    <source_model>Mageants\ImprovedSorting\Model\Source\DisableCustomAttribute</source_model>
+                    <comment><![CDATA[Press CTRL+mouse to select multiple values.]]></comment>
+                    <can_be_empty>1</can_be_empty>
+                </field>  
+                <field id="descending_sorting" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Set By Default Descending Sort Attributes</label>
+                    <source_model>Magento\Catalog\Model\Config\Source\ListSort</source_model>
+                    <comment><![CDATA[Press CTRL+mouse to select multiple values.]]></comment>
+                    <can_be_empty>1</can_be_empty>
+                </field>  
+                <field id="custom_sort_order" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sorting Order</label>
+                    <frontend_model>Mageants\ImprovedSorting\Block\Adminhtml\System\Config\CustomSortOrder</frontend_model> 
+                </field>    
+            </group>
+            <group id="improvedSorting_bestsellers" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Bestsellers</label>
+                <field id="bestsellers_label" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Label</label>
+                </field>
+                <field id="bestsellers_period" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Bestsellers Period (days)</label>
+                    <comment><![CDATA[Leave empty for life-time statistics.]]></comment>
+                </field>     
+                <field id="bestsellers_sorting" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Bestsellers Attribute</label>
+                    <source_model>Mageants\ImprovedSorting\Model\Source\UseProductListAttribute</source_model>
+                    <comment><![CDATA[Leave empty to show real data. Use to artificially move some products up in the real best seller list.]]></comment>
+                </field>
+                <field id="bestsellers_order_status" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Exclude Orders Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                    <comment><![CDATA[Press CTRL+mouse to select multiple values. Products from orders with selected status will not be used in the Bestsellers.]]></comment>
+                </field>
+            </group>
+            <group id="improvedSorting_newest" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Newest</label>
+                <field id="newest_label" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Label</label>
+                </field>   
+                <field id="newest_sorting" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute Code For The Newest Sorting</label>
+                    <source_model>Mageants\ImprovedSorting\Model\Source\UseProductListAttribute</source_model>
+                    <comment><![CDATA[Leave empty to use product create date. If you used custom attribute, make sure Used in Product Listing for the attribute is set to Yes.]]></comment>
+                </field>
+            </group>
+            <group id="improvedSorting_mostviewed" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Most Viewed</label>
+                <field id="mostviewed_label" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Label</label>
+                </field>
+                <field id="mostview_period" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Most Viewed Period (days)</label>
+                    <comment><![CDATA[Leave empty for life-time statistics.]]></comment>
+                </field>     
+                <field id="mostviewed_sorting" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Most Viewed Attribute</label>
+                    <source_model>Mageants\ImprovedSorting\Model\Source\UseProductListAttribute</source_model>
+                    <comment><![CDATA[Leave empty to show real data. Use to artificially move some products up in the real most viewed list.]]></comment>
+                </field>
+            </group>
+            <group id="improvedSorting_now_wishlists" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Now In Wishlists</label>
+                <field id="now_wishlists_label" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Label</label>
+                </field>  
+                <field id="now_wishlists_period" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Added To Wishlist Period (days)</label>
+                    <comment><![CDATA[Leave empty for life-time statistics.]]></comment>
+                </field>
+            </group>
+            <group id="improvedSorting_biggest_saving" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Biggest Saving</label>
+                <field id="biggest_saving_label" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Label</label>
+                </field>  
+                <field id="biggest_saving_sorting" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use Percentage For Biggest Saving Sorting</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="improvedSorting_top_rated" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Top Rated</label>
+                <field id="top_rated_label" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Label</label>
+                </field>  
+            </group>
+            <group id="improvedSorting_reviews_count" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Reviews Count</label>
+                <field id="reviews_count_label" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Label</label>
+                </field>  
+            </group>
+        </section>
+    </system>
+</config>

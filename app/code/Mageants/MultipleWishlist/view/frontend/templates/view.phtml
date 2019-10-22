@@ -1,0 +1,727 @@
+<?php
+/**
+ * @category Mageants MultipleWishlist
+ * @package Mageants_MultipleWishlist
+ * @copyright Copyright (c) 2017 Mageants
+ * @author Mageants Team <info@mageants.com>
+ */
+/** @var \Magento\Wishlist\Block\Customer\Wishlist $block */
+?>
+<?php if ($this->helper('Magento\Wishlist\Helper\Data')->isAllow()) : ?>
+<div class="magewishlist_view">
+  <div class="secondary">
+      <a href="<?php echo $block->escapeUrl($block->getBackUrl()) ?>" class="action back">
+          <button><?php echo $block->escapeHtml(__(' Back ')) ?></button>
+      </a>
+    </div>
+    <?php echo ($block->getChildHtml('wishlist.rss.link')) ?>
+    <?php echo $block->getChildHtml('top') ?>
+    <?php
+      $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+      $customerSession = $objectManager->create('Magento\Customer\Model\Session');
+      $wishlistBlock= $block->getLayout()->createBlock('Mageants\MultipleWishlist\Block\WishlistData');
+      $formKey = $objectManager->create('\Magento\Framework\Data\Form\FormKey');
+      $customerId = $this->getRequest()->getParam('customer_id');
+      $mageWishlistId = $this->getRequest()->getParam('mage_wishlist_id');
+      $emptyPost = 0;
+      if (!$customerId) {
+        $customerId = $customerSession->getCustomer()->getId();
+      }
+      if ($mageWishlistId == 0) {
+        ?>
+            <input type="hidden" id="empty_post" value="<?php echo $emptyPost; ?>">
+            <div class="create_new_wishlist"><a><button> Create new List </button></a></div>
+            <?php
+            $wishlist = $objectManager->get('\Magento\Wishlist\Model\Wishlist');
+            $wishlist_collection = $wishlist->loadByCustomerId($customerId, true)->getWishItemCollection($mageWishlistId);
+            ?>
+            <div class="magewishlist_products">
+                <?php
+                if (count($wishlist_collection) != 0) 
+                { 
+                ?>                  
+                    <div class="product_exist"></div>
+                    <div class="magewishlist_header">
+                        <div id="create_magewishlist" style="display: none">
+                            <div class="exist"></div>   
+                            <div class="magewishlist_input"></div>
+                            <form>
+                                <input class = "magewishlist_name" name="magewishlist_name" id="magewishlist_name" type="text" placeholder="Create new wishlist">
+                                <input type="hidden" name="customer_id" value="<?php echo $customerSession->getCustomerId(); ?>">
+                            </form>
+                        </div>
+                        <div class="wishlistupdate" id="wishlistupdate<?php echo $mageWishlistId; ?>" style="display: none;">
+                            <div class="wishlist_message"></div>
+                            <input type="text" id="wishlist_input<?php echo $mageWishlistId; ?>" value="<?php echo 'Default'; ?>" name="wishlist_input"/>
+                        </div>
+                        <div class="wishlist_title"><?php echo 'Default'; ?></div>
+                    </div>
+                    <?php
+                    foreach ($wishlist_collection as $wishCollection) {
+                        $productId = $wishCollection['product_id'];
+                        $itemId = $wishCollection['wishlist_item_id'];
+                        $data = $wishlistBlock->getProductByID($productId);
+                        ?>
+                        <div class="wishlist_ul">
+                            <div class="product_image">
+                            <?php
+                                $imageHelper = $this->helper('\Magento\Catalog\Helper\Image');
+                                $imageUrl = $imageHelper->init($data, 'product_page_image_small')
+                                ->setImageFile($wishCollection->getFile())->getUrl();
+                            ?>
+                                <a href="<?php echo $data->getProductUrl(); ?>">
+                                    <img src="<?php echo $imageUrl;?>" class="img-responsive" alt="" />
+                                </a> 
+                            </div>
+                            <div class="product_info">
+                                <a href="<?php echo $data->getProductUrl(); ?>">
+                                    <?php echo $data->getName(); ?>
+                                </a>
+                                <span class="product_price">
+                                    <?php
+                                    $priceHelper = $this->helper('Magento\Framework\Pricing\Helper\Data');
+                                    $typeId = $data->getTypeId();
+                                    if ($typeId == 'bundle') {
+                                        $bundleObj=$data->getPriceInfo()->getPrice('final_price');
+                                        $minRaw = $bundleObj->getMinimalPrice()->getValue();
+                                        $maxRaw = $bundleObj->getMaximalPrice()->getValue(); 
+                                        echo 'From '. $priceHelper->currency($minRaw, true, false).'<br>';
+                                        echo 'To '.$priceHelper->currency($maxRaw, true, false);
+                                    } else {
+                                        $price = $data->getFinalPrice();
+                                        echo $priceHelper->currency($price, true, false);
+                                    } 
+                                    ?>
+                                </span>
+                            </div>
+                            <div class="product_actions">
+                                <?php
+                                $productData = $wishlistBlock->getProductByID($productId);
+                                $typeId = $productData->getTypeId();
+                                $cartHelper = $this->helper('Magento\Checkout\Helper\Cart');
+                                if ($typeId == 'bundle' 
+                                    || $typeId == 'grouped' 
+                                    || $typeId == 'configurable') {
+                                    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                                    $urlBuilder = $objectManager->create(\Magento\Framework\UrlInterface::class); 
+                                    $addToCartUrl = $urlBuilder->getUrl('wishlist/index/cart');   
+                                    $cartTitle = 'Add to Cart';
+                                } else {
+                                    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                                    $urlBuilder = $objectManager->create(\Magento\Framework\UrlInterface::class); 
+                                    $addToCartUrl = $urlBuilder->getUrl('wishlist/index/cart');  
+                                    $cartTitle = 'Add to Cart';
+                                }
+                                ?>
+                                <form data-role="tocart-form" action="<?php echo $addToCartUrl; ?>" method="post">
+                                  <input type="hidden" name="item" value="<?php echo $wishCollection['wishlist_item_id'] ?>">
+                                  <input type="hidden" name="wishlist_cate_name" value="default">
+                                  <input type="hidden" name="uenc" value="">
+                                  <input type="hidden" name="form_key" value="<?php echo $formKey->getFormKey(); ?>">
+                                  <input type="hidden" name="qty" value="<?php echo 1; ?>">
+                                  <button type="submit"
+                                      title="Add to Cart"
+                                      class="action tocart primary" >
+                                      <span><?php echo $cartTitle; ?></span>
+                                  </button>
+                                </form>
+                                <span class="action_btn">
+                                  <?php $wishlistColl = $wishlistBlock->getWishlistCollection(); ?>
+                                    <?php if(count($wishlistColl) > 0) { ?>
+                                      <select class="wishlistoption" name="wishlistoption" onchange="movetoWishlist('<?php echo $customerId; ?>', '<?php echo $mageWishlistId; ?>', '<?php echo $productId; ?>', '<?php echo $itemId; ?>',this)">
+                                          <option value="">Move</option>
+                                          <?php
+                                          foreach ($wishlistColl as $wishlistoption) {
+                                              if ($mageWishlistId != $wishlistoption['mage_wishlist_id']) { ?>
+                                                  <option value="<?php echo $wishlistoption['mage_wishlist_id']; ?>"><?php echo $wishlistoption['mage_wishlist_name']; ?></option>
+                                              <?php
+                                              }
+                                          }
+                                          ?>
+                                      </select>
+                                    <?php } ?>
+                                    <a href="#" class="removeproduct" onclick="removeDefaultWishlistProduct('<?php echo $customerId; ?>', '<?php echo $itemId; ?>','<?php echo $mageWishlistId; ?>')">
+                                        <button>Remove</button>
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                        <?php            
+                    }
+                  $shareEnable = $this->helper('Mageants\MultipleWishlist\Helper\Data')->getShareWishlistEnable();
+                  if ($shareEnable == 1) { ?>
+                    <div class="actions-toolbar">
+                        <div class="primary">
+                            <button name="save_and_share" onclick="shareMageWishlist('<?php echo $mageWishlistId; ?>','<?php echo $customerId; ?>')" title="<?php echo $block->escapeHtmlAttr(__('Share Wish List')) ?>" id="magewishlist_share" class="action share">
+                                <span><?php echo $block->escapeHtml(__('Share Wish List')) ?></span>
+                            </button>
+                        </div>
+                    </div>
+                  <?php
+                  }              
+                }
+                else{ 
+                ?>                
+                    <div id="create_magewishlist" style="display: none">
+                        <div class="exist"></div>   
+                        <div class="magewishlist_input"></div>
+                        <form>
+                            <input class = "magewishlist_name" name="magewishlist_name" id="magewishlist_name" type="text" placeholder="Create new wishlist">
+                            <input type="hidden" name="customer_id" value="<?php echo $customerSession->getCustomerId(); ?>">
+                        </form>
+                    </div>
+                    <div class="empty_magewishlist">
+                        <div class="message info empty">
+                            <span>
+                                <?php
+                                    echo $block->escapeHtml(__('You have no items in your list.'));
+                                ?> 
+                            </span>
+                        </div>
+                    </div>
+                <?php
+                }
+                ?>
+            </div>
+        <?php 
+      }
+      else{
+        if ($mageWishlistId == '') {
+          $emptyPost = 1;
+          $customerId = $customerSession->getCustomerId();
+          $data = $wishlistBlock->getWishlistCollection()
+            ->addFieldToFilter('customer_id', array('eq' => $customerId))->getFirstItem();
+          $mageWishlistId = $data->getId(); 
+        }
+        ?><input type="hidden" id="empty_post" value="<?php echo $emptyPost; ?>">
+        <?php
+        $wishlistCollection = $wishlistBlock->getWishlistCollection();
+        $wishlist = $objectManager->get('\Magento\Wishlist\Model\Wishlist');
+        $wishlist_collection = $wishlist->loadByCustomerId($customerId, true)->getWishItemCollection($mageWishlistId);
+        $wishlistTitle = $wishlistCollection
+          ->addFieldToFilter('mage_wishlist_id', array('eq' => $mageWishlistId));
+        if (count($wishlistCollection) != 0) { ?>
+        <div class="create_new_wishlist"><a><button> Create new List </button></a></div>
+          <div class="product_exist"></div>
+          <div class="magewishlist_header">
+            <div id="create_magewishlist" style="display: none"> 
+              <div class="exist"></div>   
+              <div class="magewishlist_input"></div>
+               <form>
+                  <input class = "magewishlist_name" name="magewishlist_name" id="magewishlist_name" type="text" placeholder="Create new wishlist">
+                  <input type="hidden" name="customer_id" value="<?php echo $customerSession->getCustomerId(); ?>">
+              </form>
+            </div>
+            <div class="remove_magewishlist" onclick="removeMageWishlist('<?php echo $mageWishlistId; ?>','<?php echo $customerId; ?>')"><a>Remove</a></div>
+            <input type="hidden" id="mage_wishlist_id" value="<?php echo $mageWishlistId; ?>">
+            <div class="edit_magewishlist" onclick="editMageWishlist('<?php echo $mageWishlistId; ?>','<?php echo $customerId; ?>')"><a>Edit</a></div>
+            <div class="wishlistupdate" id="wishlistupdate<?php echo $mageWishlistId; ?>" style="display: none;">
+              <div class="wishlist_message"></div>
+              <?php
+              foreach ($wishlistTitle as $title) {
+                $mageWishlistName = $title->getMageWishlistName();              
+              }
+              ?>
+              <input type="text" id="wishlist_input<?php echo $mageWishlistId; ?>" value="<?php echo $mageWishlistName; ?>" name="wishlist_input"/>
+            </div>
+          
+          <?php
+          foreach ($wishlistTitle as $title) { ?>
+            <div class="wishlist_title"><?php echo $title->getMageWishlistName(); ?></div>            
+          <?php
+          }
+          ?>
+          </div>
+          <div class="magewishlist_products">
+          <?php
+          if (count($wishlist_collection) == 0) { ?>
+            <div class="empty_magewishlist">
+              <div class="message info empty">
+                <span>
+                  <?php
+                    echo $block->escapeHtml(__('You have no items in your list.'));
+                    ?>                    
+                </span>
+              </div>
+            </div>
+           <?php
+          } else {         
+            foreach ($wishlist_collection as $wishCollection) {
+                $productId = $wishCollection['product_id'];
+                $itemId = $wishCollection['wishlist_item_id'];
+                $data = $wishlistBlock->getProductByID($productId);
+                ?>
+                <div class="wishlist_ul">
+                    <div class="product_image">
+                    <?php
+                        $imageHelper = $this->helper('\Magento\Catalog\Helper\Image');
+                        $imageUrl = $imageHelper->init($data, 'product_page_image_small')
+                        ->setImageFile($wishCollection->getFile())->getUrl();
+                    ?>
+                        <a href="<?php echo $data->getProductUrl(); ?>">
+                            <img src="<?php echo $imageUrl;?>" class="img-responsive" alt="" />
+                        </a> 
+                    </div>
+                    <div class="product_info">
+                        <a href="<?php echo $data->getProductUrl(); ?>">
+                            <?php echo $data->getName(); ?>
+                        </a>
+                        <span class="product_price">
+                            <?php
+                            $priceHelper = $this->helper('Magento\Framework\Pricing\Helper\Data');
+                            $typeId = $data->getTypeId();
+                            if ($typeId == 'bundle') {
+                                $bundleObj=$data->getPriceInfo()->getPrice('final_price');
+                                $minRaw = $bundleObj->getMinimalPrice()->getValue();
+                                $maxRaw = $bundleObj->getMaximalPrice()->getValue(); 
+                                echo 'From '. $priceHelper->currency($minRaw, true, false).'<br>';
+                                echo 'To '.$priceHelper->currency($maxRaw, true, false);
+                            } else {
+                                $price = $data->getFinalPrice();
+                                echo $priceHelper->currency($price, true, false);
+                            } 
+                            ?>
+                        </span>
+                    </div>
+                    <div class="product_actions">
+                        <?php
+                        $productData = $wishlistBlock->getProductByID($productId);
+                        $typeId = $productData->getTypeId();
+                        $cartHelper = $this->helper('Magento\Checkout\Helper\Cart');
+                        if ($typeId == 'bundle' 
+                            || $typeId == 'grouped' 
+                            || $typeId == 'configurable') {
+                            //$addToCartUrl = $productData->getProductUrl();
+                            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                            $urlBuilder = $objectManager->create(\Magento\Framework\UrlInterface::class); 
+                            $addToCartUrl = $urlBuilder->getUrl('wishlist/index/cart');   
+                            $cartTitle = 'Add to Cart';
+                        } else {
+                            //$addToCartUrl = $cartHelper->getAddUrl($wishCollection);
+                            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                            $urlBuilder = $objectManager->create(\Magento\Framework\UrlInterface::class); 
+                            $addToCartUrl = $urlBuilder->getUrl('wishlist/index/cart');  
+                            $cartTitle = 'Add to Cart';
+                        }
+                        ?>
+                        <form data-role="tocart-form" action="<?php echo $addToCartUrl; ?>" method="post">
+                          <input type="hidden" name="item" value="<?php echo $wishCollection['wishlist_item_id'] ?>">
+                          <input type="hidden" name="wishlist_cate_name" value="default">
+                          <input type="hidden" name="qty" value="<?php echo 1; ?>"> 
+                          <input type="hidden" name="uenc" value="">
+                          <input type="hidden" name="form_key" value="<?php echo $formKey->getFormKey(); ?>">
+                          <button type="submit"
+                              title="Add to Cart"
+                              class="action tocart primary" >
+                              <span><?php echo $cartTitle; ?></span>
+                          </button>
+                        </form>
+                        <span class="action_btn">
+                          <?php $wishlistColl = $wishlistBlock->getWishlistCollection(); ?>
+                            <?php if(count($wishlistColl) > 0) { ?>
+                              <select class="wishlistoption" name="wishlistoption" onchange="movetoWishlist('<?php echo $customerId; ?>', '<?php echo $mageWishlistId; ?>', '<?php echo $productId; ?>', '<?php echo $itemId; ?>',this)">
+                                  <option value="">Move</option>
+                                  <option value="<?php echo 0; ?>">Default</option>
+                                  <?php
+                                  foreach ($wishlistColl as $wishlistoption) {
+                                      if ($mageWishlistId != $wishlistoption['mage_wishlist_id']) { ?>
+                                          <option value="<?php echo $wishlistoption['mage_wishlist_id']; ?>"><?php echo $wishlistoption['mage_wishlist_name']; ?></option>
+                                      <?php
+                                      }
+                                  }
+                                  ?>
+                              </select>
+                            <?php } ?>
+                            <a href="#" class="removeproduct" onclick="removeDefaultWishlistProduct('<?php echo $customerId; ?>', '<?php echo $itemId; ?>','<?php echo $mageWishlistId; ?>')">
+                                <button>Remove</button>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <?php            
+            } 
+          }
+          ?>
+          </div>
+          <?php
+                $shareEnable = $this->helper('Mageants\MultipleWishlist\Helper\Data')->getShareWishlistEnable();
+                 if ($shareEnable == 1) {
+                ?>
+          <div class="actions-toolbar">
+              <div class="primary">
+                  <button name="save_and_share" onclick="shareMageWishlist('<?php echo $mageWishlistId; ?>','<?php echo $customerId; ?>')" title="<?php echo $block->escapeHtmlAttr(__('Share Wish List')) ?>" id="magewishlist_share" class="action share">
+                      <span><?php echo $block->escapeHtml(__('Share Wish List')) ?></span>
+                  </button>
+              </div>
+          </div>
+          <?php
+                 }              
+        } else {
+          ?>
+            <div class="message info empty">
+              <span>
+                <?php 
+                  echo $block->escapeHtml(__('You have no wishlist created.'));
+                ?>
+              </span>
+            </div>
+          <?php
+        }
+      ?>  
+      <?php  
+      } ?>
+      
+  <div id="shareMageWishlist" style="display: none"> 
+      <div class="magewishlist_email"></div>
+       <form>
+          <input class = "shareMageWishlist_email" name="shareMageWishlist_email" id="shareMageWishlist_email" type="text" placeholder="Enter emails">
+          <div>Seperared by comma (,). Ex: abc@example.com, xyz@example.com</div>
+      </form>
+  </div> 
+</div>
+<script type="text/javascript">
+require(['jquery','jquery/ui'],function($) {  
+  setTimeout(function(){     
+    $("input#magewishlist_name").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $('.create_newwishlist_button').click();
+        }
+    });
+  }, 3000); 
+});
+ require(
+  [
+      'jquery',
+      'Magento_Ui/js/modal/modal',
+      'Magento_Customer/js/customer-data'
+  ],
+  function($,modal,customerData) {
+    var newWishlist = {
+      type: 'popup',
+      responsive: true,
+      innerScroll: true,
+      title: 'Create New Wishlist',
+      buttons: [{
+        text: $.mage.__('Create list'),
+        class: 'create_newwishlist_button',
+        click: function () {
+          $('.magewishlist_view').trigger('processStart');
+           var magewishlist_name = $('input[name="magewishlist_name"]').val();
+           var customer_id = $('input[name="customer_id"]').val();
+           var wishlist_name_in_lower = magewishlist_name.toLowerCase();
+            if (wishlist_name_in_lower.trim() == "default") {
+              var content = 'Wishlist already exists';
+              $('div.magewishlist_input').html(content);
+              $('.magewishlist_view').trigger('processStop');
+            }
+            else{              
+               $.ajax({
+                  url : '<?php echo $block->getUrl('favorite/index/wishlist'); ?>',
+                  method : 'POST',
+                  data : { 
+                   magewishlist_name : magewishlist_name,
+                   customer_id:customer_id,
+                   wishlistdata : 'createMageWishlist',
+                  },
+                  success: function(response) {
+                    if(response == 'exist'){
+                      var content = 'Wishlist already exists';
+                      $('div.magewishlist_input').html(content);
+                    }
+                    else if(response == 'empty'){
+                      var content = 'Wishlist name is require';
+                      $('div.magewishlist_input').html(content);
+                    }
+                    else if(response == 'tooLong'){
+                      var content = 'Wishlist name is too long, >20 characters not allowed';
+                      $('div.magewishlist_input').html(content);
+                    }
+                    else{
+                     $("#create_magewishlist").modal("closeModal");
+                     $('.magewishlist_view').html($(response).find('.magewishlist_view'));
+                     $('.magewishlist_sidebar').html($(response).find('.magewishlist_sidebar'));
+                     $('#all_magewishlists div.magewishlist_name').last().addClass('active').siblings().removeClass('active'); 
+                     var msg = 'Wishlist created successfully';
+                     $('.magewishlist_view').trigger('processStop');
+                     $("input#magewishlist_name").val("");
+                     customerData.set('messages', {
+                        messages: [{
+                            type: 'success',
+                            text: msg
+                        }]
+                    }).stop();                
+                     
+                    }
+                    $('.magewishlist_view').trigger('processStop');
+                  }
+               });
+            }
+        }
+      }]
+    };
+
+    $(document).on('click','.create_new_wishlist',function(){ 
+      var popup = modal(newWishlist, $('#create_magewishlist'));
+      if ($("#create_magewishlist").length != 0) {
+        $("#create_magewishlist").modal("openModal");
+        }
+    });
+  });
+function shareMageWishlist(mage_wishlist_id, customer_id){
+require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal',
+            'Magento_Customer/js/customer-data'
+        ],
+        function($,modal, customerData) {
+          var shareWishlist = {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: 'Share this Wish List via Email',
+            buttons: [{
+              text: $.mage.__('Send e-mail'),
+              class: '',
+              click: function () {
+                var shareMageWishlist_email = $('input[name="shareMageWishlist_email"]').val();
+                $('#shareMageWishlist').trigger('processStart');
+                
+                 $.ajax({
+                    url : '<?php echo $block->getUrl('favorite/index/wishlist'); ?>',
+                    method : 'POST',
+                    data : { 
+                     mage_wishlist_id : mage_wishlist_id,
+                     customer_id:customer_id,
+                     shareMageWishlist_email : shareMageWishlist_email,
+                     wishlistdata : 'shareMageWishlist',
+                    },
+                    success: function(response) {
+                      if(response == 'empty')
+                      {
+                        var content = 'Email is require';
+                        $('div.magewishlist_email').html(content);
+                      }
+                      else if(response == 'invalid'){
+                        var content = 'Invalid email address';
+                        $('div.magewishlist_email').html(content);
+                      }else if(response.message == 'limit'){
+                        var content = 'Maximum '+ response.data + ' emails allowed.';
+                        $('div.magewishlist_email').html(content);
+                      }
+                      else{
+                        $('#shareMageWishlist').trigger('processStop');
+                        $("#shareMageWishlist").modal("closeModal");
+                        var msg = 'Wishlist Shared Successfully.';
+                          customerData.set('messages', {
+                            messages: [{
+                                type: 'success',
+                                text: msg
+                            }]
+                          }).stop();
+                      }
+                    }
+                 });
+              }
+            }]
+          };
+
+
+
+        var popup = modal(shareWishlist, $('#shareMageWishlist'));
+        $("#shareMageWishlist").modal("openModal");
+      });
+}
+function removeMageWishlist(mage_wishlist_id, customer_id){
+  require([ 'jquery', 'Magento_Customer/js/customer-data', 'jquery/ui'], function($,customerData){
+    $('.magewishlist_view').trigger('processStart');
+        $.ajax({
+      
+            url : '<?php echo $block->getUrl('favorite/index/wishlist'); ?>',
+            method : 'POST',
+            data : { 
+                 mage_wishlist_id : mage_wishlist_id,
+                 customer_id : customer_id,
+                 wishlistdata : 'remove_magewishlist'
+                },
+                success: function(response){
+                  $('.magewishlist_view').trigger('processStop');
+                  //$('.magewishlist_view').html($(response).find('.magewishlist_view'));
+                  window.location.href = "<?php echo $block->getUrl('favorite/index/index'); ?>";
+                  var msg = 'Wishlist removed successfully';
+                  customerData.set('messages', {
+                    messages: [{
+                        type: 'success',
+                        text: msg
+                    }]
+                  }).stop();
+                }
+            
+        });
+
+     return false;
+   });   
+ 
+}
+function movetoWishlist(customer_id, mage_wishlist_id, product_id, item_id, wishlistdopdown){
+  require([ 'jquery', 'Magento_Customer/js/customer-data', 'jquery/ui'], function($,customerData){
+    var wishlist_change_id = wishlistdopdown.value;
+    $('.magewishlist_view').trigger('processStart');
+   $.ajax({
+       url: '<?php echo $block->getUrl('favorite/index/wishlist'); ?>',
+       method: "POST",
+       data: { customer_id : customer_id,
+               mage_wishlist_id : mage_wishlist_id,
+               product_id : product_id,
+               item_id : item_id,
+               wishlist_change_id : wishlist_change_id,
+               wishlistdata : 'moveto'
+              },
+        success : function(response) {
+          $('.magewishlist_view').trigger('processStop');
+        if(response == 'exist'){
+          var msg = 'Product is already in the list';
+           customerData.set('messages', {
+              messages: [{
+                  type: 'error',
+                  text: msg
+              }]
+          }).stop();
+        } 
+        else{   
+          $('.magewishlist_view').html($(response).find('.magewishlist_view'));
+           var msg = 'Product moved successfully';
+           customerData.set('messages', {
+              messages: [{
+                  type: 'success',
+                  text: msg
+              }]
+          }).stop();
+        }  
+           
+                   
+      }
+       
+   });
+   return false;
+  });
+}
+function removeDefaultWishlistProduct(customer_id, product_id, mageWishlistId){
+  require([ 'jquery', 'Magento_Customer/js/customer-data', 'jquery/ui'], function($,customerData){
+    $('.magewishlist_view').trigger('processStart');
+        $.ajax({
+            url : '<?php echo $block->getUrl('favorite/index/wishlist'); ?>',
+            method : 'POST',
+            data : { customer_id:customer_id,
+                 product_id : product_id,
+                 mageWishlist_id : mageWishlistId,
+                 wishlistdata : 'defaultRemove'
+                },
+            success : function(response) {  
+            console.log(response);                    
+              $('.magewishlist_view').html($(response).find('.magewishlist_view'));
+              $('.magewishlist_view').trigger('processStop');
+              var msg = 'Product removed successfully';
+               customerData.set('messages', {
+                  messages: [{
+                      type: 'success',
+                      text: msg
+                  }]
+              }).stop();
+          }
+        });
+     return false;
+  }); 
+}
+
+function editMageWishlist(mage_wishlist_id, customer_id){
+  require(
+    [
+        'jquery',
+        'Magento_Ui/js/modal/modal'
+    ],
+    function($,modal){
+        
+           var options = {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: 'Edit Wishlist Name',
+            buttons: [{
+                text: $.mage.__('Save'),
+                class: 'edit_magewishlist_button',
+                click: function () {
+                  $('.magewishlist_view').trigger('processStart');
+
+                  var wishlist_input = $('#wishlist_input'+mage_wishlist_id).val();
+                  $.ajax({
+                    url : '<?php echo $block->getUrl('favorite/index/wishlist'); ?>',
+                    method : 'POST',
+                  data : { 
+                       customer_id : customer_id,
+                       mage_wishlist_id : mage_wishlist_id,
+                       wishlist_input : wishlist_input,
+                       wishlistdata : 'updatewishlist'
+                      },
+                  success : function(data) { 
+                        if(data == 'exist'){
+                        var content = 'Wishlist already exist';
+                        $('div.wishlist_message').html(content);
+                      }else if(data == 'empty'){
+                        var content = 'Wishlist name is require';
+                        $('div.wishlist_message').html(content);
+                      }
+                      else{
+                        $("#wishlistupdate"+mage_wishlist_id).modal("closeModal");
+                        $('.magewishlist_view').html($(data).find('.magewishlist_view'));
+                        $('.magewishlist_sidebar').html($(data).find('.magewishlist_sidebar'));
+                      }
+                      $('#magewishlist_name'+mage_wishlist_id).addClass('active').siblings().removeClass('active');
+                      $('.magewishlist_view').trigger('processStop');
+                       
+                    }
+
+                    
+                });
+                  $('.magewishlist_view').trigger('processStop');   
+                }
+            }]
+        };
+        $('#wishlist_input'+mage_wishlist_id).keypress(function(event) {
+            if (event.which == 13) {
+                event.preventDefault();
+                $('.edit_magewishlist_button').click();
+            }
+        }); 
+        var popup = modal(options, $('#wishlistupdate'+mage_wishlist_id));        
+            $("#wishlistupdate"+mage_wishlist_id).modal("openModal");
+          return false;
+     });
+}
+</script>
+    <script id="form-tmpl" type="text/x-magento-template">
+      <form id="wishlist-hidden-form" method="post" action="<%- data.url %>" class="no-display">
+          <% if (data.qty) { %>
+          <input name="qty" value="<%- data.qty %>">
+          <% } %>
+          
+          <% if (data.item) { %>
+          <input name="item" value="<%- data.item %>">
+          <% } %>
+          
+          <% if (data.entity) { %>
+          <input name="entity" value="<%- data.entity %>">
+          <% } %>
+      </form>
+  </script>
+
+<?php endif ?>
+
+<?php if (!$customerId) {  ?>
+  <script type="text/javascript">
+    require(['jquery','jquery/ui'],function($) {
+      $("#magewishlist_name0").click();
+    });
+  </script>
+<?php  } ?> 

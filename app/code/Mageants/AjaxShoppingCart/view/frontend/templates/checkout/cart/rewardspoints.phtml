@@ -1,0 +1,75 @@
+<?php
+/** @var \Mirasvit\Rewards\Block\Checkout\Cart\RewardsPoints $block */
+// @codingStandardsIgnoreFile
+if (!$block->getMaxPointsNumberToSpent()) { ?>
+    <div id="block-rewards-form" class="block shipping" data-mage-init='{"collapsible":{"openedState": "", "saveState": true}}'>
+        <div class="title" data-role="title">
+            <strong id="block-rewards-form-heading" role="heading" aria-level="2">
+                <?php echo __('Use Reward Points') ?>
+            </strong>
+        </div>
+        <div id="block-rewards-points-form" data-bind="scope:'block-rewards-points-form'" class="content"
+             data-role="content" aria-labelledby="block-rewards-form-heading">
+            <?php   $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $customerSession = $objectManager->get('Magento\Customer\Model\Session');
+                $rewardBlock=$objectManager->get('\Mirasvit\Rewards\Block\Account\Summary');
+                if($customerSession->isLoggedIn()) {
+                    echo __('You currently have <b>%1</b> , which is less than our minimum redemption of 500', $this->helper('Mirasvit\Rewards\Helper\Data')->formatPoints($rewardBlock->getBalancePoints()));
+                    echo __("<br><br>
+                    Don't worry though, they're easy to earn!<br><br>Simply upload photos of your little one(s) wearing our products and/or leave a review of previously purchased products. Either can be accomplished right on each item's page."); ?>
+
+                <?php }else{ ?>
+                    <h2>Reward Points</h2>
+                    <div class="discount-form">Please <a class="reward_login_color" class="show_popup_login" href="customer/account/login">login to your account</a> to earn and use reward points</div>
+                <?php }
+            ?>
+        </div>
+    </div>
+    <script type="text/x-magento-init">
+        {
+            "#block-rewards-points-form": {
+                "Magento_Ui/js/core/app": <?php /* @escapeNotVerified */ echo $block->getJsLayout();?>
+            }
+        }
+    </script>
+    <script>
+        require([
+            'mage/url',
+            'Magento_Ui/js/block-loader'
+        ], function(url, blockLoader) {
+            blockLoader("<?php /* @escapeNotVerified */ echo $block->getViewFileUrl('Mageants_AjaxShoppingCart/images/loader.gif'); ?>");
+            return url.setBaseUrl('<?php /* @escapeNotVerified */ echo $block->getBaseUrl();?>');
+        })
+    </script>
+<?php }else{
+?>
+<?php /** @var $block \Mirasvit\Rewards\Block\Checkout\Cart\RewardsPoints */ ?>
+
+<div id="block-rewards-form" class="block shipping" data-mage-init='{"collapsible":{"openedState": "active", "saveState": true}}'>
+    <div class="title" data-role="title">
+        <strong id="block-rewards-form-heading" role="heading" aria-level="2">
+            <?php echo __('Use Reward Points') ?>
+        </strong>
+    </div>
+    <div id="block-rewards-points-form" data-bind="scope:'block-rewards-points-form'" class="content"
+         data-role="content" aria-labelledby="block-rewards-form-heading">
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <script type="text/x-magento-init">
+            {
+                "#block-rewards-points-form": {
+                    "Magento_Ui/js/core/app": <?php /* @escapeNotVerified */ echo $block->getJsLayout();?>
+                }
+            }
+        </script>
+        <script>
+            require([
+                'mage/url',
+                'Magento_Ui/js/block-loader'
+            ], function(url, blockLoader) {
+                blockLoader("<?php /* @escapeNotVerified */ echo $block->getViewFileUrl('Mageants_AjaxShoppingCart/images/loader.gif'); ?>");
+                return url.setBaseUrl('<?php /* @escapeNotVerified */ echo $block->getBaseUrl();?>');
+            })
+        </script>
+    </div>
+</div>
+<?php } ?>

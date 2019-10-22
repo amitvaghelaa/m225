@@ -1,0 +1,42 @@
+<style type="text/css">
+#planlist ul li:before { 
+    content: "";
+    font-family: 'Admin Icons';
+    content: '\e63d'; 
+    margin: 0 3px 0 0; 
+    } 
+#planlist ul li { 
+    background: #efefef; 
+    border-bottom: 1px solid #fff; 
+    padding: 1rem;
+    list-style: none; 
+    cursor: pointer;    
+}
+</style>
+<?php $customSortOrder = $block->checkSortOrder(); ?>
+
+    <div id="planlist">
+        <ul>
+            <?php foreach ($customSortOrder as $key => $sorting) { ?>
+            <li><?php echo $sorting['label'];?>
+                <input type="hidden" name="<?php echo $sorting['name'];?>" value="<?php echo $sorting['value'];?>">
+            </li>
+            <?php } ?>
+        </ul>
+    </div>
+
+<script>
+    require([
+        'jquery',
+        'collapsable'
+    ], function ($) {
+        var tabs = $("#planlist").tabs();
+        tabs.find(".ui-tabs-nav").sortable({
+            axis: "y",
+            tolerance: 'pointer',
+            stop: function () {
+                tabs.tabs("refresh");
+            }
+        });
+    });
+</script>

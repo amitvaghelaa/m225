@@ -1,0 +1,120 @@
+<?php
+/**
+ * @category Mageants MultipleWishlist
+ * @package Mageants_MultipleWishlist
+ * @copyright Copyright (c) 2017 Mageants
+ * @author Mageants Team <info@mageants.com>
+ */
+
+/** @var \Magento\Wishlist\Block\Customer\Sidebar $block */
+?>
+<?php
+$wishlistHelper = $this->helper('Magento\Wishlist\Helper\Data');
+?>
+<?php if ($wishlistHelper->isAllow()) : ?>
+    <div class="block block-wishlist" data-bind="scope: 'wishlist'">
+        <div class="block-content">
+            <div class="magewishlist_sidebar">
+                <div class="magewishlist_sidebar_title">Your List</div>
+            <?php
+            $cartHelper = $this->helper('Magento\Checkout\Helper\Cart');
+            $wishlistBlock= $block->getLayout()->createBlock('Mageants\MultipleWishlist\Block\WishlistData');
+            
+            if ($wishlistBlock->getCustomerData() != "") {
+                $customerId = $wishlistBlock->getCustomerData()->getId();
+                
+
+                $wishlistCollection = $wishlistBlock->getWishlistCollection()->addFieldToFilter('customer_id', array('eq' => $customerId));
+
+                if ($wishlistCollection->getSize() > 0) {
+                    ?>
+                    <div id="all_magewishlists">
+                        <div id="magewishlist_name0" class="magewishlist_name" onclick="getMagelistProduct('<?php echo 0;?>','<?php echo $customerId;?>')">
+                            <a>
+                                <?php echo "Default"; ?>
+                            </a>
+                        </div>
+                    <?php       
+                    foreach ($wishlistCollection as $wishlistColl) {
+                        
+                        $mageWishlistId = $wishlistColl->getData('mage_wishlist_id');
+                  /*      $productCollection= $wishlistBlock->getWishlistProductColl()
+                            ->addFieldToFilter('mage_wishlist_id', array('eq' => $mageWishlistId));*/
+                        ?>
+                        <div id="magewishlist_name<?php echo $wishlistColl->getData('mage_wishlist_id'); ?>" class="magewishlist_name" onclick="getMagelistProduct('<?php echo $mageWishlistId;?>','<?php echo $customerId;?>')">
+                        <a>
+                            <?php echo $wishlistColl->getData('mage_wishlist_name'); ?>
+                        </a>
+                        </div>
+
+                    <?php
+                        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                        $wishlistProduct = $objectManager->create("Magento\Framework\Registry")->register('magewishlist_product', $mageWishlistId);
+                    }
+                    ?>
+                </div>
+                <?php
+                } else {
+                ?>
+                    <div id="all_magewishlists">
+                        <div id="magewishlist_name0" class="magewishlist_name" onclick="getMagelistProduct('<?php echo 0;?>','<?php echo $customerId;?>')">
+                            <a>
+                                <?php echo "Default"; ?>
+                            </a>
+                        </div>
+                    </div>
+            <?php
+                }
+            }
+            ?>
+            </div>
+            
+        </div>
+    </div>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "wishlist": {
+                        "component": "Magento_Wishlist/js/view/wishlist"
+                    }
+                }
+            }
+        }
+    }
+</script>
+<script type="text/javascript"> 
+require([ 'jquery', 'jquery/ui'], function($){
+    $(document).ready(function(){
+        $('#magewishlist_name'+0).addClass('active').siblings().removeClass('active');
+        var empty_post = $('#empty_post').val();    
+        if(empty_post == 1){
+            $('#all_magewishlists div.magewishlist_name:first').addClass('active').siblings().removeClass('active');
+        }
+        
+    });
+});
+function getMagelistProduct(mage_wishlist_id,customer_id){
+    
+    require([ 'jquery', 'jquery/ui'], function($){
+        $('#magewishlist_name'+mage_wishlist_id).addClass('active').siblings().removeClass('active');
+        $('.magewishlist_view').trigger('processStart');
+        $.ajax({
+            url : '<?php echo $block->getUrl('favorite/index/index'); ?>',
+            method : 'POST',
+            data : { customer_id:customer_id,
+                     mage_wishlist_id : mage_wishlist_id,
+                     magewishlist : 'wishlist_product'
+                    },
+            success : function(response) {                   
+                $('.magewishlist_view').html($(response).find('.magewishlist_view'));
+                $('.magewishlist_view').trigger('processStop');
+            }
+        });
+     return false;
+    }); 
+    
+}
+</script>
+<?php endif ?>

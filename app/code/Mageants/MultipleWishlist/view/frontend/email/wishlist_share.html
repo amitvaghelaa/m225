@@ -1,0 +1,29 @@
+<!--@subject {{trans "Take a look at "}} {{var customer_name}}{{trans "'s Wish List"}} @-->
+<!--@vars
+{"store url=\"\"":"Store Url",
+"skin url=\"images/logo_email.gif\" _area='frontend'":"Email Logo Image"}
+@-->
+<!--@styles
+body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif; }
+@-->
+
+{{template config_path="design/email/header_template"}}
+
+<p class="greeting">{{trans "Hello " }},</p>
+<p>{{trans "Welcome to %store_name." store_name=$store.getFrontendName()}}</p>
+<p>
+    {{var customer_name}}{{trans " sent you this via %store_name" store_name=$store.getFrontendName() 
+        
+
+        customer_url=$this.getUrl($store,'customer/account/',[_nosid:1])
+    |raw}}
+</p>
+
+<p>{{trans "Check out my Wish List. Wish Lists are great for keeping track of things you'd like to have and for helping your family and friends buy gifts you really want. Thanks for taking a look." }}</p>
+<form method="get" action="{{var wishlistLink}}">
+    <button type="submit">View {{var customer_name}}'s Wish List</button>
+</form>
+
+
+{{template config_path="design/email/footer_template"}}
+{{var catalogue_url}}

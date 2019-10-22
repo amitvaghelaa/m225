@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+     <head>
+        <css src="Mageants_MultipleWishlist::css/wishlist.css" media="all" />
+    </head>
+    <body>
+        <referenceBlock name="top.links">
+            <action method="unsetChild">
+                <argument name="block" xsi:type="string">wish-list-link</argument>
+            </action>
+            <block class="Mageants\MultipleWishlist\Block\Link" name="magewish-list-link" after="my-account-link" ifconfig="favorite/general/enable">
+                <arguments>
+                    <argument name="sortOrder" xsi:type="number">60</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+        <referenceBlock name="wishlist_sidebar" remove="true"/>
+    </body>
+</page>

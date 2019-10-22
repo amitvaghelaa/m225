@@ -1,0 +1,322 @@
+<?php
+/**
+ * @category  Mageants AjaxShoppingCart
+ * @package   Mageants_AjaxShoppingCart
+ * @copyright Copyright (c) 2017 Magento
+ * @author    Mageants Team <support@mageants.com>
+ */
+use Magento\Framework\App\Action\Action;
+$controller=$this->getRequest()->getControllerName();
+$helper  = $this->helper('Mageants\AjaxShoppingCart\Helper\Data');
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$selling=$helper->getConfigValue("mageants_ajaxshoppingcart/selling/align");
+$sellingCount=$helper->getConfigValue("mageants_ajaxshoppingcart/selling/sellingCount");
+$baseUrl=$helper->getBaseUrl();
+$cart = $objectManager->get('\Magento\Checkout\Model\Cart');
+$totalItems = $cart->getQuote()->getItemsCount();
+$itemloopinslider = $helper->getConfigValue("mageants_ajaxshoppingcart/selling/slideritemloop");
+$allowAutoplay = $helper->getConfigValue("mageants_ajaxshoppingcart/selling/sliderautoplay");
+$allowAutoplayAfter = $helper->getConfigValue("mageants_ajaxshoppingcart/selling/autoplayafter");
+$slidernav = $helper->getConfigValue("mageants_ajaxshoppingcart/selling/slidernav");
+?>
+<?php 
+	function getMessagePopup($sku,$cat){
+		$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+		$productObject = $objectManager->get('Magento\Catalog\Model\Product');
+		$formKey = $objectManager->get('Magento\Framework\Data\Form\FormKey')->getFormKey();
+		$helper  = $objectManager->get('Mageants\AjaxShoppingCart\Helper\Data');
+		$baseUrl=$helper->getBaseUrl();
+		$image=$helper->getConfigValue("mageants_ajaxshoppingcart/display/image");
+		$imgDisplay='none';if($image){$imgDisplay="block";}else{$imgDisplay="none";}		
+		$imageHelper = $objectManager->create('\Magento\Catalog\Helper\Image');
+		$currency=$objectManager->get('\Magento\Directory\Model\Currency');
+		$currentUrl = $helper->getCurrentUrl();		
+		$cart = $objectManager->get('\Magento\Checkout\Model\Cart');
+		$subTotal = $cart->getQuote()->getSubtotal();
+		$totalQuantity = $cart->getQuote()->getItemsQty();
+		$show_cart_info=$helper->getConfigValue("mageants_ajaxshoppingcart/display/show_cart_info");
+		$product_cart=$helper->getConfigValue("mageants_ajaxshoppingcart/display/product_cart");
+		$cart_total=$helper->getConfigValue("mageants_ajaxshoppingcart/display/cart_total");
+		$checkoutButton=$helper->getConfigValue("mageants_ajaxshoppingcart/display/checkout");
+		$show_cart_infoDisplay='none';if($show_cart_info){$show_cart_infoDisplay="block";}else{$show_cart_infoDisplay="none";}
+		$sellingTitle=$helper->getConfigValue("mageants_ajaxshoppingcart/selling/title");
+		$selling=$helper->getConfigValue("mageants_ajaxshoppingcart/selling/align");
+		$sellingCount=$helper->getConfigValue("mageants_ajaxshoppingcart/selling/sellingCount");
+		$useSlider=$helper->getConfigValue("mageants_ajaxshoppingcart/selling/slider");
+		if ($useSlider == 0 && $sellingCount > 3) {
+			$sellingCount = 3;
+		}
+		$block='';
+		if($cat=="1")
+		{
+			$block=$objectManager->create("\Magento\Catalog\Block\Product\View");
+		}else if($cat==0)
+		{
+			$block=$objectManager->create("\Magento\Catalog\Block\Product\ListProduct");
+		}
+		
+		$relatedBlock=$objectManager->create("\Magento\Catalog\Block\Product\ProductList\Related");
+		$_item = $productObject->loadByAttribute('sku', $sku);
+		$data="";
+		$data .= '<div class="cpmodal-message-'.$_item->getId().'" style="display: none;">';
+		$data.='<div class="modal-content"> 
+				    <div class="popup-header">
+				        <h2>Information</h2>
+				    </div>';
+		$data.=	'<h4 class="add-message">You have added <a href="'.$_item->getUrl().'">'.$_item->getName().'</a> to cart.</h4> 
+					    <div class="center" style="display:'.$imgDisplay.'">
+					        <img style="display:'.$imgDisplay.'" src="'.$imageHelper->init($_item, "product_base_image")->getUrl().'" />     
+					    </div>';    
+		$data.=' <div class="cart-info" style="display:'.$show_cart_infoDisplay.'">';
+				if($product_cart==1){
+				$data.='<h4 class="qty-message">There is <strong class="ajax-count">'.$totalQuantity.'</strong> Item in cart </h4>';
+				}
+				if($cart_total==1){
+				$data.='<h4 class="subtotal-message">Cart Subtotal: <strong class="ajax-subtotal">'.$subTotal.'</strong></h4>';
+				}
+		$data.='</div>';
+		$data.='<div class="action-buttons-model">';
+				        	if($checkoutButton){
+				        	$data.='<a id="gottoCheckout" href="'.$baseUrl.'checkout/" class="action primary checkout">Checkout</a>';
+				        	}
+				        	$data.='<a id="Continue" href="#" class="action primary button4 buttonContinue">Continue</a>
+				        </div>';
+
+				$sellingCollection='';
+				if($selling=="related"){$sellingCollection=$_item->getRelatedProducts();}else if($selling=="crosssell"){$sellingCollection=$_item->getCrossSellProducts();}
+					    $i=1;
+				if (!empty($sellingCollection) && $sellingCount>0):
+					    $data.='<h2>'.$sellingTitle.'</h2>';
+					    if ($useSlider == 1) {
+					    	$data.='<div class="products wrapper grid products-grid products slider">
+					            <div class="products list items product-items owl-carousel">';
+					    }
+					    else{
+					    	$data.='<div class="products wrapper grid products-grid products noslider">
+					            <div class="products list items product-items">';
+					    }
+					    
+					            	foreach($sellingCollection as $_item):
+					            		if($i<=$sellingCount) {
+						        	    $available = '';
+						        	    $sku=$_item->getSku();
+					        		    $_item = $productObject->loadByAttribute('sku', $sku);
+						        		if (!$_item->isComposite() && $_item->isSaleable()):
+						            		if (!$_item->getRequiredOptions()):
+						                		$available = 'related-available';
+						            		endif;
+						        		endif;
+						      		$data.='<div class="item product product-item product-item-cart">			        
+							                    <div class="product-item-info '.$available.'">';
+							        	            $image = $imageHelper->init($_item,'category_page_list')->constrainOnly(FALSE)->keepAspectRatio(TRUE)->keepFrame(FALSE)->resize(400)->getUrl();
+							                        $data.='<div class="product-item-photo"><a href="'.$_item->getProductUrl().'" class="product photo product-item-photo">
+							                            <img src="'.$image.'" >
+							                        </a></div>
+							                        <div class="product details product-item-details">
+						    			                <strong class="product name product-item-name">
+						    			                	<a class="product-item-link" title="'.$_item->getName().'" href="'.$_item->getProductUrl().
+						    			                	'">'.$_item->getName().'</a>
+						    			                </strong>';
+						    			            $data.='<strong>'.$relatedBlock->getProductPrice($_item).'</strong>';
+											        $data.='<form action="'.$block->getAddToCartUrl($_item).'" method="post" id="product_addtocart_form" novalidate="novalidate">
+											        	<input name="form_key" type="hidden" value="'.$formKey.'">
+											        		<div class="product actions product-item-actions">
+						                                    <div class="actions-primary">';
+					                                            if ($_item->isSaleable()):
+					                                                if ($_item->getTypeInstance()->hasRequiredOptions($_item)):
+						                                                $data.='<input type="hidden" name="product" value="'.$_item->getId().'">';
+						                                                $data.='<div class="actions">
+																		            <button type="submit" title="Add to Cart" class="action primary tocart" id="product-addtocart-button">
+																		                <span>Add to Cart</span>
+																		            </button>
+																			    </div>';
+						                                            else:
+					                                                    
+						                                                $data.='<input type="hidden" name="product" value="'.$_item->getId().'">';
+						                                                $data.='<div class="actions">
+																		            <button type="submit" title="Add to Cart" class="action primary tocart" id="product-addtocart-button">
+																		                <span>Add to Cart</span>
+																		            </button>
+																			    </div>';
+					                                                    
+					                                                endif;
+					                                            else:
+					                                                if ($_item->getIsSalable()):
+					                                                    $data.='<div class="stock available"><span>In stock</span></div>';
+					                                                else:
+					                                                    $data.='<div class="stock unavailable"><span>Out of stock</span></div>';
+					                                                endif;
+					                                            endif;
+					                                        $data.='</div>
+						                                </div></form>
+													</div>
+							                    </div>
+						        	        </div>';
+						            $i++; } endforeach; 
+						        $data.='</div>
+					        </div>';
+						endif;
+					$data.='</div>';
+		$data.= '</div>';
+		return $data;
+	} 
+?>
+
+<?php if($controller=="category"){ ?>
+	<?php $category = $objectManager->get('Magento\Framework\Registry')->registry('current_category'); ?>
+	<?php $_productCollection =$category->getProductCollection(); ?>
+	<div id="cartpro_modal" class="cartpro-modal mfp-hide">
+		<div class="cpmodal-loading">
+			<img src='<?php echo $this->getViewFileUrl('Mageants_AjaxShoppingCart/images/loader.gif'); ?>'>
+		</div>
+		<div class="cpmodal-wrapper">
+			<button class="cpmodal-close cp-close mfp-close">×</button>
+			<?php 
+				if(sizeof($_productCollection)>0 && !empty($_productCollection)){
+				foreach ($_productCollection as $product) { ?>
+				<?php echo getMessagePopup($product->getSku(),"0"); ?>
+				<?php $sellingCollection='';
+					if($selling=="related"){$sellingCollection=$product->getRelatedProducts();}else if($selling=="crosssell"){$sellingCollection=$product->getCrossSellProducts();}
+					$i=1;
+					if(!empty($sellingCollection) && $sellingCount>0){
+						foreach($sellingCollection as $_item){
+		            		echo getMessagePopup($_item->getSku(),"0");
+						}
+		        	} ?>
+			<?php } } ?>
+		</div>	
+	</div>
+	<?php }else if($controller=="product") {?>
+		<?php $block=$objectManager->create("\Magento\Catalog\Block\Product\View"); ?>
+		<?php $product = $block->getProduct();?>
+		<div id="cartpro_modal" class="cartpro-modal mfp-hide">
+			<div class="cpmodal-loading">
+				<img src='<?php echo $this->getViewFileUrl('/Mageants_AjaxShoppingCart/images/loader.gif'); ?>'>
+			</div>
+			<div class="cpmodal-wrapper">
+				<button class="cpmodal-close cp-close mfp-close">×</button>
+				<?php echo getMessagePopup($product->getSku(),"1"); ?>
+				<?php $sellingCollection='';
+					if($selling=="related"){$sellingCollection=$product->getRelatedProducts();}else if($selling=="crosssell"){$sellingCollection=$product->getCrossSellProducts();}
+					$i=1;
+					if(!empty($sellingCollection) && $sellingCount>0){
+						foreach($sellingCollection as $_item){
+		            		echo getMessagePopup($_item->getSku(),"1");
+						}
+		        	} ?>
+			</div>	
+		</div>
+	<?php }else if($controller=="result") {?>
+		<?php $blockresult=$objectManager->create("Magento\Catalog\Block\Product\ListProduct"); ?>
+		<?php $_productCollection = $blockresult->getLayer()->getProductCollection();	?>
+		<div id="cartpro_modal" class="cartpro-modal mfp-hide">
+			<div class="cpmodal-loading">
+				<img src='<?php echo $this->getViewFileUrl('Mageants_AjaxShoppingCart/images/loader.gif'); ?>'>
+			</div>
+			<div class="cpmodal-wrapper">
+				<button class="cpmodal-close cp-close mfp-close">×</button>
+				<?php 
+					if(sizeof($_productCollection)>0 && !empty($_productCollection)){
+					foreach ($_productCollection as $product) {  ?>
+					<?php echo getMessagePopup($product->getSku(),"0"); ?>
+					<?php $sellingCollection='';
+						if($selling=="related"){$sellingCollection=$product->getRelatedProducts();}else if($selling=="crosssell"){$sellingCollection=$product->getCrossSellProducts();}
+						$i=1;
+						if(!empty($sellingCollection) && $sellingCount>0){
+							foreach($sellingCollection as $_item){
+			            		echo getMessagePopup($_item->getSku(),"0");
+							}
+			        	} ?>
+				<?php } } ?>
+			</div>	
+		</div>
+	<?php }else { ?>
+		<div id="cartpro_modal" class="cartpro-modal mfp-hide">
+			<div class="cpmodal-loading">
+				<img src='<?php echo $this->getViewFileUrl('/Mageants_AjaxShoppingCart/images/loader.gif'); ?>'>
+			</div>
+			<div class="cpmodal-wrapper">
+				<button class="cpmodal-close cp-close mfp-close">×</button>
+			</div>
+		</div>
+	<?php } ?>
+<?php
+	if ($totalItems == 0) {?>
+	<script type="text/javascript" xml="space">
+		require(["jquery","jquery/ui"], function ($) {			
+			$("#cart_summary_mini").hide();
+		});
+	</script>
+<?php	}
+?>
+	<script type="text/javascript" xml="space">
+		require(["jquery","jquery/ui"], function ($) {
+			$('.button2').on('click', function () {
+				console.log("yes");
+			});
+			$('.buttonContinue').on('click', function () {
+					$(".mfp-close").click();	
+			});
+		});
+	</script>
+	<script type="text/javascript">
+		require(["jquery","jquery/ui","Mageants_AjaxShoppingCart/js/owl.carousel"], function ($) {
+			var owl = $('.owl-carousel');
+			var itemloopinslider = '<?php echo $itemloopinslider; ?>';
+			var allowAutoplay = '<?php echo $allowAutoplay; ?>';
+			var allowAutoplayAfter = '<?php echo $allowAutoplayAfter; ?>';
+			var slidernav = '<?php echo $slidernav; ?>';
+			var allowloop = false;
+			var allowslidernav = false;
+			if (itemloopinslider == 1) {
+				allowloop = true;
+			}
+			if (allowAutoplay != 1) {
+				allowAutoplayAfter = 0;
+			}
+			if (slidernav == 1) {
+				allowslidernav = true;
+			}
+            owl.owlCarousel({
+                items: 3,
+                loop: allowloop,
+                autoplay:allowAutoplayAfter,
+                margin:15, 
+				smartSpeed: 1000,
+				nav: allowslidernav,
+				dots: false 
+            });
+		});
+	</script>
+<script type="text/x-magento-init">
+{
+    "#tocart-form": {
+        "Magento_Catalog/product/view/validation": {
+            "bindSubmit": true,
+            "radioCheckboxClosest": ".nested"
+        }
+    }
+}
+</script>
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "catalogAddToCart": {
+                "bindSubmit": true
+            }
+        }
+    }
+</script>
+<style type="text/css">.action-buttons-model a{margin-right: 15px;}
+.products{width: 100%;}
+.product-item .tocart{
+	margin-top:20px;
+}
+
+.product-item-cart .product.name.product-item-name {
+    height: 50px;
+}
+div.product-item-photo{
+	height: 160px;
+}
+</style>

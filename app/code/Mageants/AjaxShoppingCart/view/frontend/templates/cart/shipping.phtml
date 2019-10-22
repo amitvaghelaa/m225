@@ -1,0 +1,63 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php /** @var $block \Magento\Checkout\Block\Cart\Shipping */ ?>
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+$magentoVersion = $productMetadata->getVersion(); 
+if ($magentoVersion >= '2.2.0') {
+    $checkoutConfig =  /* @escapeNotVerified */ $block->getSerializedCheckoutConfig(); 
+}
+else{
+    $checkoutConfig = /* @escapeNotVerified */ \Zend_Json::encode($block->getCheckoutConfig());
+}
+?>
+<div id="block-shipping" class="block shipping" data-mage-init='{"collapsible":{"openedState": "active", "saveState": true}}'>
+    <div class="title" data-role="title">
+        <strong id="block-shipping-heading" role="heading" aria-level="2">
+            <?= /* @escapeNotVerified */ $block->getQuote()->isVirtual() ? __('Estimate Tax') : __('Estimate Shipping and Tax') ?>
+        </strong>
+    </div>
+    <div id="block-summary" data-bind="scope:'block-summary'" class="content" data-role="content" aria-labelledby="block-shipping-heading">
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <script type="text/x-magento-init">
+            {
+                "#block-summary": {
+                    "Magento_Ui/js/core/app": <?= /* @escapeNotVerified */ $block->getJsLayout() ?>
+                }
+            }
+        </script>
+        <script>
+            window.checkoutConfig = <?php /* @escapeNotVerified */ echo $checkoutConfig; ?>;
+            window.customerData = window.checkoutConfig.customerData;
+            window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
+            require([
+                'mage/url',
+                'Magento_Ui/js/block-loader'
+            ], function(url, blockLoader) {
+                blockLoader("<?= /* @escapeNotVerified */ $block->getViewFileUrl('Mageants_AjaxShoppingCart/images/loader.gif') ?>");
+                return url.setBaseUrl('<?= /* @escapeNotVerified */ $block->getBaseUrl() ?>');  
+            })
+        </script>
+    </div>
+</div>
+<!-- <script type="text/javascript" xml="space">
+    var popup_anchor = '';
+    var form_key_set='';
+    require(["jquery"], function ($) {
+        $(document).ready(function($){
+            console.log($(this).find(".minicart"));
+                alert("dfdffsd");
+           $('select').on('change', function(e) {
+                alert("dfdffsd");
+            });
+        });     
+    });
+</script> -->

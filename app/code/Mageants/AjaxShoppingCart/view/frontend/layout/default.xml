@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @copyright Copyright (c) 2016 www.mageants.com
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Mageants_AjaxShoppingCart::css/iconfont.css"/>
+        <css src="Mageants_AjaxShoppingCart::css/magnific-popup.css"/>
+        <css src="Mageants_AjaxShoppingCart::css/ajaxShoppingCart.css"/>
+        <css src="Mageants_AjaxShoppingCart::css/owl.carousel.min.css"/>
+        <css src="Mageants_AjaxShoppingCart::css/owl.theme.default.min.css"/>
+    </head>
+    <body>
+        <referenceBlock name="head.additional">
+            <block class="Mageants\AjaxShoppingCart\Block\Content" name="content_cartpro" as="content_cartpro" template="Mageants_AjaxShoppingCart::content.phtml" ifconfig="mageants_ajaxshoppingcart/general/enabled" cacheable="false"/>
+
+            <block class="Mageants\AjaxShoppingCart\Block\Content" name="content_css" as="content_css" template="Mageants_AjaxShoppingCart::styles.phtml" ifconfig="mageants_ajaxshoppingcart/general/canvas_cart" />
+
+            <block class="Mageants\AjaxShoppingCart\Block\Content" name="content_css" as="content_css" template="Mageants_AjaxShoppingCart::disableCart.phtml" /> 
+
+
+        </referenceBlock>
+        <referenceContainer name="page.bottom.container">
+            <block class="Mageants\AjaxShoppingCart\Block\Jsfooter" template="Mageants_AjaxShoppingCart::jsfooter.phtml" name="before_body_js_end_here" ifconfig="mageants_ajaxshoppingcart/general/enabled" after="search.result" cacheable="false" /> 
+        </referenceContainer>  
+
+        <referenceBlock name='minicart'>
+            <action method='setTemplate' ifconfig="mageants_ajaxshoppingcart/general/canvas_cart">
+                <argument name='template' xsi:type='string'>Mageants_AjaxShoppingCart::cart/minicart.phtml</argument>
+            </action>           
+        </referenceBlock>
+
+        <referenceBlock name="minicart">
+            <container name="checkout.minicart.items" as="with-items">
+                <container name="cart.coupon" label="cart coupon" htmlTag="div" htmlClass="cart-coupons" before="-">
+                    <block class="Magento\Checkout\Block\Cart\Coupon" name="checkout.minicart.coupon" as="coupon" template="Mageants_AjaxShoppingCart::cart/coupon.phtml"/>
+                    <block class="Magento\Checkout\Block\Cart\Shipping" name="checkout.minicart.shipping" as="shipping" template="Mageants_AjaxShoppingCart::cart/shipping.phtml" after="checkout.cart.summary.title" cacheable="false">
+                        <arguments>
+                            <argument name="jsLayout" xsi:type="array">
+                                <item name="types" xsi:type="array">
+                                    <item name="form.input" xsi:type="array">
+                                        <item name="component" xsi:type="string">Magento_Ui/js/form/element/abstract</item>
+                                        <item name="config" xsi:type="array">
+                                            <item name="provider" xsi:type="string">checkoutProvider</item>
+                                            <item name="deps" xsi:type="array">
+                                                <item name="0" xsi:type="string">checkoutProvider</item>
+                                            </item>
+                                            <item name="template" xsi:type="string">ui/form/field</item>
+                                            <item name="elementTmpl" xsi:type="string">ui/form/element/input</item>
+                                        </item>
+                                    </item>
+                                </item>
+                                <item name="components" xsi:type="array">
+                                    <item name="summary-block-config" xsi:type="array">
+                                        <item name="component" xsi:type="string">uiComponent</item>
+                                        <item name="children" xsi:type="array">
+                                            <item name="shipping-rates-validation" xsi:type="array">
+                                                <item name="children" xsi:type="array">
+                                                     <!--Step configuration components-->
+                                                </item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                    <item name="block-summary" xsi:type="array">
+                                        <item name="component" xsi:type="string">uiComponent</item>
+                                        <item name="deps" xsi:type="array">
+                                            <item name="0" xsi:type="string">summary-block-config</item>
+                                        </item>
+                                        <item name="children" xsi:type="array">
+                                            <item name="block-rates" xsi:type="array">
+                                                <item name="component" xsi:type="string">Magento_Checkout/js/view/cart/shipping-rates</item>
+                                                <item name="sortOrder" xsi:type="string">2</item>
+                                            </item>
+                                            <item name="block-shipping" xsi:type="array">
+                                                <item name="component" xsi:type="string">Magento_Checkout/js/view/cart/shipping-estimation</item>
+                                                <item name="provider" xsi:type="string">checkoutProvider</item>
+                                                <item name="sortOrder" xsi:type="string">1</item>
+                                                <item name="deps" xsi:type="array">
+                                                    <item name="0" xsi:type="string">block-summary.block-shipping.address-fieldsets</item>
+                                                </item>
+                                                <item name="children" xsi:type="array">
+                                                    <item name="address-fieldsets" xsi:type="array">
+                                                        <item name="component" xsi:type="string">uiComponent</item>
+                                                        <item name="config" xsi:type="array">
+                                                            <item name="deps" xsi:type="array">
+                                                                <item name="0" xsi:type="string">checkoutProvider</item>
+                                                            </item>
+                                                        </item>
+                                                        <item name="displayArea" xsi:type="string">address-fieldsets</item>
+                                                        <item name="children" xsi:type="array">
+                                                            <item name="city" xsi:type="array">
+                                                                <item name="sortOrder" xsi:type="string">115</item>
+                                                                <item name="dataScope" xsi:type="string">shippingAddress.city</item>
+                                                                <item name="provider" xsi:type="string">checkoutProvider</item>
+                                                            </item>
+                                                            <item name="country_id" xsi:type="array">
+                                                                <item name="sortOrder" xsi:type="string">110</item>
+                                                                <item name="dataScope" xsi:type="string">shippingAddress.country_id</item>
+                                                                <item name="provider" xsi:type="string">checkoutProvider</item>
+                                                            </item>
+                                                            <item name="region_id" xsi:type="array">
+                                                                <item name="component" xsi:type="string">Magento_Ui/js/form/element/region</item>
+                                                                <item name="sortOrder" xsi:type="string">112</item>
+                                                                <item name="config" xsi:type="array">
+                                                                    <item name="template" xsi:type="string">ui/form/field</item>
+                                                                    <item name="elementTmpl" xsi:type="string">ui/form/element/select</item>
+                                                                    <item name="customEntry" xsi:type="string">shippingAddress.region</item>
+                                                                </item>
+                                                                <item name="filterBy" xsi:type="array">
+                                                                    <item name="target" xsi:type="string"><![CDATA[${ $.provider }:${ $.parentScope }.country_id]]></item>
+                                                                    <item name="field" xsi:type="string">country_id</item>
+                                                                </item>
+                                                            </item>
+                                                            <item name="region" xsi:type="array">
+                                                                <item name="visible" xsi:type="boolean">false</item>
+                                                                <item name="component" xsi:type="string">Magento_Ui/js/form/element/abstract</item>
+                                                                <item name="sortOrder" xsi:type="string">111</item>
+                                                                <item name="dataScope" xsi:type="string">shippingAddress.region</item>
+                                                            </item>
+                                                            <item name="postcode" xsi:type="array">
+                                                                <item name="component" xsi:type="string">Magento_Ui/js/form/element/abstract</item>
+                                                                <item name="dataScope" xsi:type="string">shippingAddress.postcode</item>
+                                                                <item name="sortOrder" xsi:type="string">114</item>
+                                                                <item name="provider" xsi:type="string">checkoutProvider</item>
+                                                            </item>
+                                                        </item>
+                                                    </item>
+                                                </item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                    <item name="checkoutProvider" xsi:type="array">
+                                        <item name="component" xsi:type="string">uiComponent</item>
+                                    </item>
+                                </item>
+                            </argument>
+                        </arguments>
+                    </block>
+                </container>
+                <container name="checkout.minicart.totals.container" as="totals" label="Shopping Cart Totals">
+                    <block class="Magento\Checkout\Block\Cart\Totals" name="checkout.minicart.totals" template="Magento_Checkout::cart/totals.phtml">
+                        <arguments>
+                            <argument name="jsLayout" xsi:type="array">
+                                <item name="components" xsi:type="array">
+                                    <item name="block-totals" xsi:type="array">
+                                        <item name="component" xsi:type="string">Magento_Checkout/js/view/cart/totals</item>
+                                        <item name="displayArea" xsi:type="string">totals</item>
+                                        <item name="config" xsi:type="array">
+                                            <item name="template" xsi:type="string">Magento_Checkout/cart/totals</item>
+                                        </item>
+                                        <item name="children" xsi:type="array">
+                                            <item name="subtotal" xsi:type="array">
+                                                <item name="component"  xsi:type="string">Magento_Checkout/js/view/summary/subtotal</item>
+                                                <item name="config" xsi:type="array">
+                                                    <item name="title" xsi:type="string" translate="true">Subtotal</item>
+                                                    <item name="template" xsi:type="string">Magento_Checkout/cart/totals/subtotal</item>
+                                                </item>
+                                            </item>
+                                            <item name="shipping" xsi:type="array">
+                                                <item name="component"  xsi:type="string">Magento_Checkout/js/view/cart/totals/shipping</item>
+                                                <item name="config" xsi:type="array">
+                                                    <item name="title" xsi:type="string" translate="true">Shipping</item>
+                                                    <item name="template" xsi:type="string">Magento_Checkout/cart/totals/shipping</item>
+                                                </item>
+                                            </item>
+                                            <item name="discount" xsi:type="array">
+                                                <item name="component"  xsi:type="string">Magento_SalesRule/js/view/cart/totals/discount</item>
+                                                <item name="config" xsi:type="array">
+                                                    <item name="title" xsi:type="string" translate="true">Discount</item>
+                                                </item>
+                                            </item>
+                                            <item name="grand-total" xsi:type="array">
+                                                <item name="component"  xsi:type="string">Magento_Checkout/js/view/summary/grand-total</item>
+                                                <item name="config" xsi:type="array">
+                                                    <item name="title" xsi:type="string" translate="true">Order Total</item>
+                                                    <item name="template" xsi:type="string">Magento_Checkout/cart/totals/grand-total</item>
+                                                </item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                </item>
+                            </argument>
+                        </arguments>
+                    </block>
+                </container>
+                <container name="minicart.action" label="cart action" htmlTag="div" htmlClass="cart-action">
+                    <block class="Magento\Checkout\Block\Cart" name="checkout.minicart.methods.bottom" template="Magento_Checkout::cart/methods.phtml">
+                        <container name="checkout.minicart.methods" as="methods" label="Payment Methods After Checkout Button">
+                            <block class="Magento\Checkout\Block\Onepage\Link" name="checkout.minicart.methods.onepage.bottom" template="Magento_Checkout::onepage/link.phtml" />
+                            <block class="Magento\Paypal\Block\Bml\Banners" name="minicart.bml.right.logo" after="checkout.minicart.methods.onepage.bottom" template="Magento_Paypal::bml.phtml">
+                            </block>
+                            <block class="Magento\Checkout\Block\QuoteShortcutButtons" name="checkout.minicart.shortcut.buttons" />
+                        </container>
+                    </block>
+                </container>
+               
+            </container>
+        </referenceBlock>
+        
+    </body>
+</page>

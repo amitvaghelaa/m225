@@ -1,0 +1,110 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var Magento\Wishlist\Block\Catalog\Product\ProductList\Item\AddTo\Wishlist $block */
+?>
+<?php
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $customerSession = $objectManager->create('Magento\Customer\Model\Session');
+    $customer_id = $customerSession->getCustomerId();
+    $product_id = $block->getProduct()->getId();
+
+
+?>
+<?php if ($block->getWishlistHelper()->isAllow()): ?>
+    <a href="#"
+       class="action towishlist"
+       id= "toMagewishlist<?php echo $product_id; ?>"
+       title="<?= $block->escapeHtmlAttr(__('Add to Wish List')) ?>"
+       aria-label="<?= $block->escapeHtmlAttr(__('Add to Wish List')) ?>"
+       data-action="add-to-wishlist"
+       role="button">
+        <span><?= $block->escapeHtml(__('Add to Wish List')) ?></span>
+    </a>
+
+<script type="text/javascript">
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$context = $objectManager->get('Magento\Framework\App\Http\Context');
+$isLoggedIn = $context->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
+if($isLoggedIn){
+?>
+require([ 'jquery', 'Magento_Customer/js/customer-data', 'jquery/ui'], function($, customerData){
+    'use strict';
+    var product_id = '<?php echo $product_id; ?>';
+    var customer_id = '<?php echo $customer_id; ?>';
+    var wishlist_name = 'Default';
+    $("#toMagewishlist"+product_id).on('click',function(){ 
+        $('#toMagewishlist'+product_id).trigger('processStart');
+        
+        $.ajax({
+            url : '<?php echo $block->getUrl('favorite/index/add'); ?>',
+            method : 'POST',
+            data : { 
+                     product_id : product_id,
+                     customer_id : customer_id,
+                     wishlist_name : wishlist_name,
+                     ajaxfavlist : 'magewishlist'
+                    },
+            success : function(data){
+                $('#toMagewishlist'+product_id).trigger('processStop');
+                if(data == 'product_exist'){
+                    var message = 'Product is already in the wishlist';
+                     customerData.set('messages', {
+                        messages: [{
+                            type: 'error',
+                            text: message
+                        }]
+                    }).stop();
+                }
+                else{
+                     var message = 'Product added successfully to Default wishlist.';
+                     customerData.set('messages', {
+                        messages: [{
+                            type: 'success',
+                            text: message
+                        }]
+                    }).stop();
+                }
+                
+            }                           
+        });
+        
+    });
+});
+<?php
+}
+else{
+?>
+require([ 'jquery', 'jquery/ui'], function($){
+    var product_id = '<?php echo $product_id; ?>';
+        $(document).on("click","#toMagewishlist"+product_id, function() {
+            
+            $.ajax({
+
+                url : '',
+                method : 'POST',
+                success : function() {  
+                    <?php $url = $objectManager->create('\Magento\Framework\UrlInterface'); ?>
+                    window.location.href = "<?php echo $block->getUrl('customer/account/login', array('referer' => base64_encode($url->getCurrentUrl()))); ?>";
+                   
+                }
+                
+            });
+
+        });
+        $(document).on("click","#toMagewishlist"+product_id, function() {
+        window.location.href = "<?php echo $block->getUrl('customer/account/login', array('referer' => base64_encode($url->getCurrentUrl()))); ?>";
+
+        });
+    });
+    <?php
+}
+?>
+</script>
+<?php endif; ?>

@@ -1,0 +1,105 @@
+<?php 
+/**
+ * @category  Mageants BannerSlider
+ * @package   Mageants_BannerSlider
+ * @copyright Copyright (c) 2017 Mageants
+ * @author    Mageants Team <support@Mageants.com>
+ */
+$helper = $this->getBannerHelper();
+?>
+<?php if($helper->isExtentionEnable()): ?>
+
+	<?php 
+	$slider = $this->getSlider();
+
+	$imageHelper = $this->getBannerImageHelper();
+	?>
+
+	<?php if($slider && $slider ->getId() ): ?>
+	<?php 
+	$slides = $this->getSlides() ;
+
+
+	$unser_setting = $helper->unserializeSetting($slider->getSetting());
+
+	//echo "<pre>";print_r($unser_setting);echo "</pre>";exit;
+
+	$setting = $unser_setting['setting'];
+	$titleFontSize = "75";
+	?>
+	<div class="bannerwrapper">
+		<div class="carousel">			
+				<?php foreach($slides as $slide): ?>				
+					<?php	$slidesetting = $slide['setting'];?>							
+					<div class="slide-item">
+						<div class="carousel-img">
+							<?php if($slide['image']):?><img src="<?php echo $slide['image']?>"><?php endif?>
+						</div>
+						<?php if(!empty($slide['title_font_size'])){
+							$titleFontSize = $slide['title_font_size'];
+						}?>
+						<div class="slide-item-details">
+							<h1><?php echo $slide['title']?></h1>
+							<blockquote><?php echo $slide['content']?></blockquote>	
+							<a class="primary-btn" href="#">read more</a>	
+						</div>
+					</div>				
+				<?php endforeach?>		
+			<?php if($setting['show_navigation_arrows']):?>
+			
+			<?php /* ?><nav id="nav-arrows" class="nav-arrow">
+					<span class="next"><?php echo __("Next")?></span>
+					<span class="prev"><?php echo __("Prev")?></span>			
+			</nav>
+			<?php */ ?>
+			<?php endif?>
+			
+			<?php if($setting['show_navigation_bullets']):?>
+			
+			<?php /* ?><nav id="nav-dots" class="nav-dots">
+			
+				<?php $i = 0;?>
+				
+				<?php foreach($slides as $key=>$slide): ?>
+				
+					<?php if($i  == 0):?>
+					
+						<span class="nav-dot-current"></span>
+						
+					<?php else:?>
+					
+						<span></span>				
+						
+					<?php endif?>
+				
+				<?php $i++?>
+			
+				<?php endforeach?>
+				
+			</nav><?php */ ?>
+			
+			<?php endif?>
+
+		</div><!-- /slider-wrapper -->
+		
+		
+		<script type="text/javascript">
+			require(['jquery','mageants/bannerslider'],function($){
+				$(function() {					
+				    slider  = $('.carousel').bxSlider({
+				      //mode:<?php echo $setting['slider_mode']?>,	
+				      speed:<?php echo $setting['speed']?>,
+				      auto:  <?php echo $setting['autoplay']==1?'true':'false'?>,
+					  pager: <?php echo $setting['show_navigation_bullets']==1?'true':'false'?>,
+					  slideWidth: <?php echo $setting['width']==1?'true':'false'?>,
+					  controls:<?php echo $setting['show_navigation_arrows']==1?'true':'false'?>, 
+					  keyboardEnabled:<?php echo $setting['keyboard']==1?'true':'false'?>,
+					  pause:<?php echo $setting['interval']?>
+				    });					
+				});
+			});
+			 
+		</script>		
+	</div>
+	<?php endif?>
+<?php endif?>
